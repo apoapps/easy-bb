@@ -1,29 +1,27 @@
 # easy-bb
 
-Dashboard web en Next.js para consultar materias, calificaciones y pendientes de Blackboard.
+Blackboard metrics dashboard built with Next.js by apoapps.
 
-## Produccion
+## Production
 
-- Next.js sirve la app y tambien es el backend.
-- Las rutas `/api/*` viven en `app/api`.
-- No hay URL de backend externa que configurar.
-- El modo demo solo funciona en desarrollo.
-- `?demo=1` se ignora en produccion.
-- Los datos demo no se activan en produccion.
+- Next.js serves the app and the backend.
+- API routes live in `app/api`.
+- No external backend URL is required.
+- Demo data is available only in local development.
+- `?demo=1` is ignored in production.
+- Mock data is never activated in production builds.
 
-## API local
+## Backend
 
-Rutas del backend Next:
+The backend signs in to Blackboard from Next.js route handlers, stores the Blackboard session in a sealed `httpOnly` cookie, and reads courses, gradebook columns, grades, due dates, and profile data from Blackboard server-side.
+
+Routes:
 
 - `POST /api/login`
 - `GET /api/dashboard`
 - `GET /api/me`
 - `GET /api/memberships`
 - `POST /api/logout`
-
-`POST /api/login` inicia sesion contra Blackboard desde el backend Next, guarda la cookie de Blackboard en una cookie `httpOnly` sellada, y las demas rutas leen Blackboard desde `app/api` sin exponer datos sensibles al navegador.
-
-La lectura de calificaciones usa las APIs publicas de Blackboard Learn para cursos, columnas de gradebook y calificaciones por columna. Si Blackboard exige MFA o bloquea permisos de gradebook para la cuenta, el backend responde con un error explicito en vez de inventar datos.
 
 ## Scripts
 
@@ -35,6 +33,7 @@ npm run build
 npm start
 ```
 
-## Vercel
+## Links
 
-No usar el scope/proyecto `fgfitness` para este deploy. Usar el scope correcto de `alexlink2004` / Alejandro Apodaca.
+- GitHub: https://github.com/apoapps/easy-bb
+- Built by apoapps: https://apoapps.com

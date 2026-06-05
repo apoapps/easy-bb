@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   try {
     body = await parseLoginBody(request);
   } catch (error) {
-    return jsonError(400, 'INVALID_LOGIN_INPUT', error instanceof Error ? error.message : 'Datos de login invalidos.');
+    return jsonError(400, 'INVALID_LOGIN_INPUT', error instanceof Error ? error.message : 'Invalid sign-in data.');
   }
 
   try {
@@ -26,6 +26,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     if (error instanceof BlackboardError) return jsonError(error.status, error.code, error.message);
-    return jsonError(502, 'BLACKBOARD_UNAVAILABLE', 'No se pudo conectar con Blackboard.');
+    return jsonError(502, 'BLACKBOARD_UNAVAILABLE', 'Could not connect to Blackboard.');
   }
 }

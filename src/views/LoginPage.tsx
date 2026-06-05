@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Dice3D } from '../components/Dice3D';
 import { api, getLastLogin, getDemoMode, setLastLogin } from '../lib/api';
 import { pushToast } from '../components/toastBus';
+import { ApoappsCredit } from '../components/ApoLogo';
 
 export function LoginPage({ onLogin }: { onLogin?: () => void }) {
   const navigate = useNavigate();
@@ -23,8 +24,8 @@ export function LoginPage({ onLogin }: { onLogin?: () => void }) {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!username.trim() || !password.trim()) {
-      setError('Falta usuario o contraseña');
+    if (!school.trim() || !username.trim() || !password.trim()) {
+      setError('School, username, and password are required.');
       triggerShake();
       return;
     }
@@ -34,11 +35,11 @@ export function LoginPage({ onLogin }: { onLogin?: () => void }) {
     try {
       const r = await api.login(school, username, password);
       if (!r.ok) throw new Error('Login failed');
-      pushToast(getDemoMode() ? '🎭 Login demo OK' : '✓ Sesión iniciada', 'good');
+      pushToast(getDemoMode() ? 'Demo login ready' : 'Signed in', 'good');
       if (onLogin) onLogin();
       navigate('/dashboard');
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'No se pudo entrar');
+      setError(e instanceof Error ? e.message : 'Sign in failed.');
       triggerShake();
     } finally {
       setLoading(false);
@@ -53,7 +54,7 @@ export function LoginPage({ onLogin }: { onLogin?: () => void }) {
   return (
     <div className="min-h-screen w-full overflow-x-hidden flex items-center justify-center px-3 py-6 sm:px-6 sm:py-10 bg-bg">
       <div className="w-full max-w-md min-w-0 flex flex-col items-center gap-5 sm:gap-8">
-        <Dice3D rotation={diceRotation} size={104} />
+        <Dice3D rotation={diceRotation} size={112} />
 
         <div
           className={[
@@ -61,21 +62,26 @@ export function LoginPage({ onLogin }: { onLogin?: () => void }) {
             shake ? 'animate-shake' : '',
           ].join(' ')}
         >
-          <h1 className="font-display text-3xl sm:text-4xl leading-none tracking-tight">BB DASH</h1>
-          <p className="text-muted text-sm mt-2 mb-6">
-            Blackboard sin dolor · neobrutalismo morado
-          </p>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="font-display text-3xl sm:text-4xl leading-none tracking-tight">easy-bb</h1>
+              <p className="text-muted text-sm mt-2 mb-6">
+                A Blackboard metrics dashboard with a Next.js backend for secure server-side login, courses, grades, and due dates.
+              </p>
+            </div>
+            <ApoappsCredit />
+          </div>
 
           {getDemoMode() && (
             <div className="mb-4 p-2 bg-warn border-2 border-ink text-ink text-xs font-display uppercase tracking-wide text-center">
-              🎭 Modo demo — datos mockeados
+              Demo mode is active
             </div>
           )}
 
           <form onSubmit={onSubmit} className="flex flex-col gap-4">
             <div>
               <label htmlFor="lg-school" className="block text-xs font-display uppercase tracking-widest mb-1.5">
-                Escuela (subdominio)
+                School subdomain
               </label>
               <div className="grid grid-cols-[auto_minmax(0,1fr)] sm:grid-cols-[auto_minmax(0,1fr)_auto] items-stretch">
                 <span className="px-2.5 sm:px-4 py-3 bg-ink text-white text-sm sm:text-base font-bold border-2 border-ink border-r-0">https://</span>
@@ -87,6 +93,7 @@ export function LoginPage({ onLogin }: { onLogin?: () => void }) {
                   onFocus={() => setFocused(0)}
                   onBlur={() => setFocused(null)}
                   autoComplete="off"
+                  placeholder="school"
                   className="min-w-0 w-full px-3 py-3 border-2 border-ink bg-surface outline-none focus:shadow-brutal"
                 />
                 <span className="col-span-2 sm:col-span-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-ink text-white text-sm sm:text-base font-bold border-2 border-ink border-t-0 sm:border-t-2 sm:border-l-0 text-center sm:text-left">.blackboard.com</span>
@@ -95,7 +102,7 @@ export function LoginPage({ onLogin }: { onLogin?: () => void }) {
 
             <div>
               <label htmlFor="lg-user" className="block text-xs font-display uppercase tracking-widest mb-1.5">
-                Usuario
+                Username
               </label>
               <input
                 id="lg-user"
@@ -111,7 +118,7 @@ export function LoginPage({ onLogin }: { onLogin?: () => void }) {
 
             <div>
               <label htmlFor="lg-pass" className="block text-xs font-display uppercase tracking-widest mb-1.5">
-                Contraseña
+                Password
               </label>
               <input
                 id="lg-pass"
@@ -140,24 +147,24 @@ export function LoginPage({ onLogin }: { onLogin?: () => void }) {
             >
               {loading ? (
                 <>
-                  <span className="inline-block h-4 w-4 animate-spin border-2 border-white border-r-transparent rounded-full" />
-                  CONECTANDO…
+                  <span className="skeleton h-4 w-28 border border-white/70 bg-white/20" />
                 </>
               ) : (
-                <>▶ ENTRAR</>
+                <>Sign in</>
               )}
             </button>
 
             {error && (
               <div className="mt-2 min-w-0 break-words p-3 bg-bad text-white border-2 border-ink shadow-brutal-sm font-bold">
-                ❌ {error}
+                {error}
               </div>
             )}
           </form>
         </div>
 
         <p className="text-muted text-xs text-center max-w-md">
-          Tus credenciales solo se usan para login. Nada se guarda fuera de tu sesión local.
+          Credentials are sent only to the Next.js backend session route. Built by{' '}
+          <a className="font-bold text-primary underline-offset-4 hover:underline" href="https://apoapps.com" target="_blank" rel="noreferrer">apoapps</a>.
         </p>
       </div>
     </div>

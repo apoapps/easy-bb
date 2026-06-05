@@ -14,6 +14,7 @@ import { CalendarPage } from './views/CalendarPage';
 import { ProfilePage } from './views/ProfilePage';
 import { api, getSession, getDemoMode, type Session } from './lib/api';
 import type { User } from './types';
+import { ShellSkeleton, DashboardSkeleton } from './components/Skeleton';
 
 function useRouteKey(): RouteKey {
   const { pathname } = useLocation();
@@ -72,7 +73,7 @@ function AppShell() {
 
   useEffect(() => {
     if (getDemoMode() && !isLogin && session) {
-      pushToast('🎭 Modo demo — datos mockeados', 'info');
+      pushToast('Demo mode is active', 'info');
     }
   }, [session, isLogin]);
 
@@ -80,7 +81,7 @@ function AppShell() {
     await api.logout();
     setSess(null);
     setUser(null);
-    pushToast('Sesión cerrada', 'info');
+    pushToast('Signed out', 'info');
     navigate('/login');
   }
 
@@ -93,11 +94,7 @@ function AppShell() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen grid place-items-center bg-bg">
-        <div className="font-display text-2xl">BB DASH</div>
-      </div>
-    );
+    return <ShellSkeleton />;
   }
 
   // Gate: if no session and not on /login, redirect to /login
@@ -125,7 +122,7 @@ function AppShell() {
           <Route path="/course/:id" element={<CourseDetailPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/calendar" element={<CalendarPage />} />
-          <Route path="/profile" element={user ? <ProfilePage user={user} onLogout={onLogout} /> : <div>Cargando…</div>} />
+          <Route path="/profile" element={user ? <ProfilePage user={user} onLogout={onLogout} /> : <DashboardSkeleton />} />
           <Route path="/login" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

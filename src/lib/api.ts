@@ -46,11 +46,11 @@ export function setSession(s: Session | null) {
 }
 
 export function getLastLogin(): { school: string; username: string } {
-  if (typeof window === 'undefined') return { school: 'cetys', username: '' };
+  if (typeof window === 'undefined') return { school: '', username: '' };
   try {
     const raw = window.localStorage.getItem(LAST_LOGIN_KEY);
-    return raw ? JSON.parse(raw) : { school: 'cetys', username: '' };
-  } catch { return { school: 'cetys', username: '' }; }
+    return raw ? JSON.parse(raw) : { school: '', username: '' };
+  } catch { return { school: '', username: '' }; }
 }
 
 export function setLastLogin(school: string, username: string) {
@@ -93,7 +93,7 @@ async function mockApi(path: string): Promise<unknown> {
   const { DEMO_DASHBOARD } = await import('./demoData');
 
   if (path === '/api/login') {
-    return { ok: true, sessionId: 'demo-sid-' + Date.now(), userId: '_demo_user_1', xsrf: 'demo-xsrf', school: 'cetys.blackboard.com' };
+    return { ok: true, sessionId: 'demo-sid-' + Date.now(), userId: '_demo_user_1', xsrf: 'demo-xsrf', school: 'school.blackboard.com' };
   }
   if (path === '/api/me') return { ok: true, user: DEMO_DASHBOARD.user };
   if (path === '/api/memberships') {

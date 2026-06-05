@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { ApoLogo, ApoappsCredit, GithubIcon } from './ApoLogo'
 
 export type RouteKey = 'dashboard' | 'courses' | 'search' | 'calendar' | 'profile'
 
@@ -17,10 +18,10 @@ export interface TopBarProps {
 
 const TABS: Array<{ key: RouteKey; label: string }> = [
   { key: 'dashboard', label: 'Dashboard' },
-  { key: 'courses', label: 'Materias' },
-  { key: 'search', label: 'Investigar' },
-  { key: 'calendar', label: 'Calendario' },
-  { key: 'profile', label: 'Perfil' },
+  { key: 'courses', label: 'Courses' },
+  { key: 'search', label: 'Explore' },
+  { key: 'calendar', label: 'Calendar' },
+  { key: 'profile', label: 'Profile' },
 ]
 
 function initials(name: string): string {
@@ -54,12 +55,20 @@ export function TopBar({ currentRoute, onNavigate, user, onLogout }: TopBarProps
         px-6 py-4
       "
     >
-      <div className="font-display text-xl tracking-tight select-none">
-        <span className="text-primary">BB</span>
-        <span className="text-white"> DASH</span>
+      <div className="flex shrink-0 items-center gap-2 select-none">
+        <div className="grid h-10 w-10 place-items-center bg-surface text-primary border-2 border-primary shadow-brutal-sm">
+          <ApoLogo className="h-7 w-7" />
+        </div>
+        <div className="leading-none">
+          <div className="font-display text-lg tracking-tight">
+            <span className="text-primary">easy</span>
+            <span className="text-white">-bb</span>
+          </div>
+          <ApoappsCredit compact dark />
+        </div>
       </div>
 
-      <nav className="flex items-center gap-1 flex-1 overflow-x-auto" aria-label="Principal">
+      <nav className="flex items-center gap-1 flex-1 overflow-x-auto" aria-label="Primary">
         {TABS.map((tab) => {
           const active = currentRoute === tab.key
           return (
@@ -84,6 +93,16 @@ export function TopBar({ currentRoute, onNavigate, user, onLogout }: TopBarProps
 
       {user ? <UserChip user={user} /> : null}
 
+      <a
+        href="https://github.com/apoapps/easy-bb"
+        target="_blank"
+        rel="noreferrer"
+        className="grid h-9 w-9 shrink-0 place-items-center border-2 border-white/60 bg-white/10 text-white transition-colors hover:bg-white hover:text-ink"
+        aria-label="Open GitHub repository"
+      >
+        <GithubIcon className="h-5 w-5" />
+      </a>
+
       {onLogout ? (
         <button
           type="button"
@@ -99,7 +118,7 @@ export function TopBar({ currentRoute, onNavigate, user, onLogout }: TopBarProps
             active:translate-x-[4px] active:translate-y-[4px]
           "
         >
-          Salir
+          Sign out
         </button>
       ) : null}
     </header>

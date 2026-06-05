@@ -3,13 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import type { Dashboard, Actividad } from '../types';
 import { Chip, type ChipTone } from '../components/Chip';
+import { ListSkeleton } from '../components/Skeleton';
+import { UiIcon } from '../components/UiIcon';
 
 const FILTERS = [
-  { key: 'all', label: 'Todas' },
-  { key: 'GRADED', label: 'Calificadas' },
-  { key: 'NEEDS_GRADING', label: 'Por calificar' },
-  { key: 'zero', label: 'En cero' },
-  { key: 'overdue', label: 'Vencidas' },
+  { key: 'all', label: 'All' },
+  { key: 'GRADED', label: 'Graded' },
+  { key: 'NEEDS_GRADING', label: 'Needs grading' },
+  { key: 'zero', label: 'Zero score' },
+  { key: 'overdue', label: 'Overdue' },
 ] as const;
 
 type FilterKey = (typeof FILTERS)[number]['key'];
@@ -36,7 +38,6 @@ export function SearchPage() {
   const [d, setD] = useState<Dashboard | null>(null);
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState<FilterKey>('all');
-  const [spot, setSpot] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -45,14 +46,6 @@ export function SearchPage() {
       if (mounted) setD(r);
     })();
     return () => { mounted = false; };
-  }, []);
-
-  useEffect(() => {
-    function onMove(e: MouseEvent) {
-      setSpot({ x: e.clientX, y: e.clientY });
-    }
-    window.addEventListener('mousemove', onMove);
-    return () => window.removeEventListener('mousemove', onMove);
   }, []);
 
   const all: Actividad[] = useMemo(() => {
@@ -75,26 +68,15 @@ export function SearchPage() {
 
   return (
     <div className="flex flex-col gap-6 relative">
-      {/* Spotlight */}
-      {spot && (
-        <div
-          aria-hidden
-          className="pointer-events-none fixed z-0 w-[300px] h-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-          style={{
-            left: spot.x,
-            top: spot.y,
-            background: 'radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%)',
-          }}
-        />
-      )}
-
       <div className="relative max-w-3xl mx-auto w-full z-10">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl pointer-events-none">🔍</span>
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-muted">
+          <UiIcon name="search" className="h-6 w-6" />
+        </span>
         <input
           type="text"
           value={q}
           onChange={e => setQ(e.target.value)}
-          placeholder="¿Qué actividad buscas? (ej. subnetting, examen, práctica 3)"
+          placeholder="Search assignments, courses, or grading status"
           className="w-full pl-14 pr-5 py-4 text-lg border-4 border-ink bg-surface shadow-brutal-lg outline-none focus:translate-x-[-1px] focus:translate-y-[-1px] transition-transform"
         />
       </div>
@@ -116,10 +98,16 @@ export function SearchPage() {
       </div>
 
       <div className="z-10 relative">
-        {filtered.length === 0 ? (
+        {!d ? (
+          <div className="max-w-3xl mx-auto">
+            <ListSkeleton rows={8} />
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="text-center py-12 text-muted">
-            <div className="text-5xl mb-2">{q ? '🔍' : '📋'}</div>
-            {q ? `Sin resultados para "${q}"` : 'No hay actividades que mostrar'}
+            <div className="mx-auto mb-2 grid h-12 w-12 place-items-center border-2 border-ink text-primary">
+              <UiIcon name={q ? 'search' : 'list'} />
+            </div>
+            {q ? `No results for "${q}"` : 'No activities to show'}
           </div>
         ) : (
           <div className="flex flex-col gap-2 max-w-3xl mx-auto">

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import type { Dashboard } from '../types';
 import { CourseCard } from '../components/CourseCard';
+import { CourseGridSkeleton } from '../components/Skeleton';
+import { Card } from '../components/Card';
 
 export function CoursesPage() {
   const [d, setD] = useState<Dashboard | null>(null);
@@ -21,31 +23,30 @@ export function CoursesPage() {
   }, []);
 
   if (loading || !d) {
-    return (
-      <div className="flex gap-6 overflow-x-auto pb-4">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="skeleton shrink-0 w-[280px] h-[340px] border-4 border-ink" />
-        ))}
-      </div>
-    );
+    return <CourseGridSkeleton />;
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-baseline gap-3">
-        <h2 className="font-display text-3xl tracking-tight">Tus materias</h2>
-        <span className="text-muted font-mono text-sm">{d.materias[0]?.term?.name || '—'}</span>
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end">
+        <div className="min-w-0">
+          <h2 className="font-display text-3xl tracking-tight">Courses</h2>
+          <p className="mt-1 text-sm text-muted">
+            Full course grid with averages, activity load, and Blackboard course status.
+          </p>
+        </div>
+        <Card className="p-4">
+          <div className="text-[10px] font-display uppercase tracking-widest text-muted">Term</div>
+          <div className="mt-1 truncate font-mono text-sm font-bold">{d.materias[0]?.term?.name || '—'}</div>
+          <div className="mt-2 text-xs text-muted">{d.materias.length} courses in grid</div>
+        </Card>
       </div>
 
-      <div className="flex gap-6 overflow-x-auto pb-6 scroll-snap-x scrollbar-thin">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {d.materias.map((m, i) => (
           <CourseCard key={m.courseId} materia={m} index={i} />
         ))}
       </div>
-
-      <p className="text-center text-muted text-sm">
-        Desliza → para ver más. Click en una materia para drill-down.
-      </p>
     </div>
   );
 }

@@ -23,7 +23,7 @@ export async function parseLoginBody(request: Request): Promise<LoginBody> {
   const password = typeof raw?.password === 'string' ? raw.password : '';
 
   if (!school || !username || !password) {
-    throw new Error('Falta escuela, usuario o contrasena.');
+    throw new Error('School, username, and password are required.');
   }
 
   return { school, username, password };
@@ -35,7 +35,7 @@ export function getSessionId(request: Request): string | null {
 }
 
 export function missingSession(): Response {
-  return jsonError(401, 'SESSION_REQUIRED', 'Inicia sesion para consultar datos de Blackboard.');
+  return jsonError(401, 'SESSION_REQUIRED', 'Sign in to read Blackboard data.');
 }
 
 export type LoginResponse = {

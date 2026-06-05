@@ -18,15 +18,15 @@ function daysUntil(iso: string | null): number | null {
 function formatDate(iso: string | null): string {
   if (!iso) return '—';
   const d = new Date(iso);
-  return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
+  return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short' });
 }
 
 const STATUS_CHIP: Record<Actividad['status'], { tone: 'good' | 'warn' | 'bad' | 'info' | 'primary'; label: string }> = {
-  GRADED: { tone: 'good', label: 'Calificada' },
-  NEEDS_GRADING: { tone: 'warn', label: 'Por calificar' },
-  IN_PROGRESS: { tone: 'info', label: 'En curso' },
-  NOT_ATTEMPTED: { tone: 'primary', label: 'No intentada' },
-  OVERDUE: { tone: 'bad', label: 'Vencida' },
+  GRADED: { tone: 'good', label: 'Graded' },
+  NEEDS_GRADING: { tone: 'warn', label: 'Needs grading' },
+  IN_PROGRESS: { tone: 'info', label: 'In progress' },
+  NOT_ATTEMPTED: { tone: 'primary', label: 'Not attempted' },
+  OVERDUE: { tone: 'bad', label: 'Overdue' },
 };
 
 export function BarRow({ actividad, index = 0, onClick }: BarRowProps) {
@@ -83,9 +83,9 @@ export function BarRow({ actividad, index = 0, onClick }: BarRowProps) {
         <div className="mt-0.5 text-xs text-muted">
           {formatDate(dueDate)}
           {days != null && days >= 0 && days <= 7 && score == null && (
-            <span className="ml-2 text-bad font-bold">en {days}d</span>
+            <span className="ml-2 text-bad font-bold">in {days}d</span>
           )}
-          {isOverride && <span className="ml-2 text-info">✏️ override</span>}
+          {isOverride && <span className="ml-2 text-info">override</span>}
           {pointsPossible ? ` · ${pointsPossible} pts` : ''}
         </div>
       </div>

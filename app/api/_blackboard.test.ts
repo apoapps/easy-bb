@@ -3,9 +3,9 @@ import { CookieJar, normalizeSchool, parseHiddenInputs } from './_blackboard';
 
 describe('Blackboard connector helpers', () => {
   it('normalizes Blackboard school subdomains', () => {
-    expect(normalizeSchool('https://cetys.blackboard.com/')).toEqual({
-      school: 'cetys',
-      origin: 'https://cetys.blackboard.com',
+    expect(normalizeSchool('https://school.blackboard.com/')).toEqual({
+      school: 'school',
+      origin: 'https://school.blackboard.com',
     });
   });
 

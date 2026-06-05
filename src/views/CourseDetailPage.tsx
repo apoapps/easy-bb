@@ -5,6 +5,8 @@ import type { Dashboard, Materia, Actividad } from '../types';
 import { useCountUp } from '../components/useCountUp';
 import { BarRow } from '../components/BarRow';
 import { Modal } from '../components/Modal';
+import { ListSkeleton } from '../components/Skeleton';
+import { UiIcon } from '../components/UiIcon';
 
 const COURSE_COLORS = [
   { bg: '#7C3AED', ink: '#FFFFFF' },
@@ -24,7 +26,7 @@ function colorForCourse(name: string): { bg: string; ink: string } {
 
 function formatDate(iso: string | null): string {
   if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
+  return new Date(iso).toLocaleDateString('en-US', { day: '2-digit', month: 'short' });
 }
 
 export function CourseDetailPage() {
@@ -68,8 +70,7 @@ export function CourseDetailPage() {
     return (
       <div className="flex flex-col gap-4">
         <div className="skeleton h-32 border-2 border-ink" />
-        <div className="skeleton h-16 border-2 border-ink" />
-        <div className="skeleton h-16 border-2 border-ink" />
+        <ListSkeleton rows={4} />
       </div>
     );
   }
@@ -77,10 +78,12 @@ export function CourseDetailPage() {
   if (!materia) {
     return (
       <div className="text-center py-12 text-muted">
-        <div className="text-4xl mb-2">🔍</div>
-        Materia no encontrada
+        <div className="mx-auto mb-2 grid h-12 w-12 place-items-center border-2 border-ink text-primary">
+          <UiIcon name="search" />
+        </div>
+        Course not found
         <button onClick={() => navigate('/courses')} className="block mx-auto mt-4 px-4 py-2 bg-primary text-white border-2 border-ink shadow-brutal-sm font-display uppercase">
-          ← Volver a Materias
+          Back to courses
         </button>
       </div>
     );
@@ -95,7 +98,7 @@ export function CourseDetailPage() {
         onClick={() => navigate('/courses')}
         className="self-start px-3 py-1.5 text-sm bg-surface text-ink border-2 border-ink shadow-brutal-sm font-bold uppercase transition-transform hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
       >
-        ← Materias
+        Courses
       </button>
 
       <div
@@ -114,12 +117,12 @@ export function CourseDetailPage() {
             {materia.totalEarned} / {materia.totalPossible} puntos
           </div>
         </div>
-        <div className="text-xs opacity-80 mt-2">{acts.length} actividades</div>
+        <div className="text-xs opacity-80 mt-2">{acts.length} activities</div>
       </div>
 
       <div className="p-6 bg-surface border-2 border-ink shadow-brutal">
         <h3 className="font-display text-lg uppercase tracking-wide mb-4 flex items-center gap-2">
-          <span className="text-2xl">📊</span> Actividades
+          <UiIcon name="list" className="h-5 w-5" /> Activities
         </h3>
         <div className="flex flex-col gap-3">
           {acts.map((a, i) => (
@@ -137,12 +140,12 @@ export function CourseDetailPage() {
         {selected && (
           <div className="flex flex-col gap-2 text-sm">
             <div className="font-mono text-xs text-muted mb-2">{materia.displayName}</div>
-            <Row label="Calificación" value={selected.score != null ? `${selected.score.toFixed(2)} / ${selected.pointsPossible}` : '—'} mono />
-            <Row label="Porcentaje" value={selected.pct != null ? `${selected.pct.toFixed(1)}%` : '—'} mono />
+            <Row label="Grade" value={selected.score != null ? `${selected.score.toFixed(2)} / ${selected.pointsPossible}` : '—'} mono />
+            <Row label="Percentage" value={selected.pct != null ? `${selected.pct.toFixed(1)}%` : '—'} mono />
             <Row label="Status" value={selected.status} />
-            <Row label="Vence" value={formatDate(selected.dueDate)} mono />
+            <Row label="Due" value={formatDate(selected.dueDate)} mono />
             {selected.isOverride && selected.lastOverrideDate && (
-              <Row label="Override" value={new Date(selected.lastOverrideDate).toLocaleString('es-MX')} mono />
+              <Row label="Override" value={new Date(selected.lastOverrideDate).toLocaleString('en-US')} mono />
             )}
           </div>
         )}

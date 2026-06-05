@@ -1,62 +1,61 @@
 ## Goal
 
-Make BB DASH production-ready as a Next.js app where Next API routes are the backend, demo/mock data cannot leak in production, and Blackboard login/data reads are implemented inside `app/api` without using any external backend URL.
+Keep easy-bb production-ready as a Next.js app where Next API routes are the backend, demo/mock data cannot leak in production, and the UI presents a polished English Blackboard metrics dashboard built by apoapps.
 
 ## Current State
 
-Next.js serves both the UI and `/api/*`. The old `BLACKBOARD_CONNECTOR_NOT_IMPLEMENTED` placeholder has been removed. `POST /api/login` now posts to the Blackboard web login for the selected school, stores Blackboard cookies server-side inside a sealed `httpOnly` cookie, and returns a compatibility `sessionId` to the existing React client.
+Next.js serves both the UI and `/api/*`. `POST /api/login` posts to the Blackboard web login for the selected school, stores Blackboard cookies server-side inside a sealed `httpOnly` cookie, and returns a compatibility `sessionId` to the existing React client.
 
 Authenticated routes read the sealed cookie:
 
 - `GET /api/me` calls `/learn/api/public/v1/users/me`.
 - `GET /api/memberships` calls Blackboard course memberships for the current user.
-- `GET /api/dashboard` reads current user, memberships, gradebook columns, and per-column grades to build the existing dashboard shape.
+- `GET /api/dashboard` reads current user, memberships, gradebook columns, and per-column grades to build the dashboard shape.
 - `POST /api/logout` clears the sealed session cookie.
 
-No real Blackboard credentials were available in cleartext, so the complete successful login flow could not be verified end-to-end. Local verification confirmed invalid credentials now reach Blackboard and return `BLACKBOARD_LOGIN_FAILED` instead of the old placeholder or a 404.
-
-Validation passed on June 5, 2026:
-
-- `npm test`
-- `npm run lint`
-- `npm run build`
-- `next start` API smoke tests for missing session, invalid login, and logout cookie clearing
-
-GitHub push completed to `https://github.com/apoapps/easy-bb.git` on `main`. Vercel deploy was intentionally not run because both local Vercel CLI and the Vercel connector only exposed the forbidden `fgfitness` scope/team.
+The visible app is now English-only, uses the easy-bb brand instead of BB DASH, includes "Built by apoapps" links to `https://apoapps.com`, and shows a GitHub icon link to `https://github.com/apoapps/easy-bb` in the top-right header. Vercel is expected to deploy from GitHub push now that the user configured the correct Vercel account externally.
 
 ## Files In Flight
 
-- `app/api/_blackboard.ts`
-- `app/api/_blackboard.test.ts`
-- `app/api/_session.ts`
-- `app/api/_session.test.ts`
-- `app/api/_backend.ts`
-- `app/api/_backend.test.ts`
-- `app/api/login/route.ts`
-- `app/api/logout/route.ts`
-- `app/api/dashboard/route.ts`
-- `app/api/me/route.ts`
-- `app/api/memberships/route.ts`
+- `app/api/*`
+- `app/client-app.tsx`
+- `app/layout.tsx`
+- `public/favicon.svg`
+- `src/App.tsx`
+- `src/components/ApoLogo.tsx`
+- `src/components/Skeleton.tsx`
+- `src/components/UiIcon.tsx`
+- `src/components/Dice3D.tsx`
+- `src/components/TopBar.tsx`
+- `src/components/CourseCard.tsx`
+- `src/components/BarRow.tsx`
+- `src/views/*`
 - `src/lib/api.ts`
+- `src/lib/demoData.ts`
+- `src/index.css`
+- `tailwind.config.js`
 - `README.md`
 - `handoff.md`
 
 ## Changed
 
-- Added a Blackboard connector with a small cookie jar, login form hidden-input parsing, Blackboard school normalization, REST JSON helpers, user normalization, memberships mapping, gradebook column reads, per-column grade reads, KPI aggregation, and explicit Blackboard error codes.
-- Added sealed Next backend sessions in `app/api/_session.ts`; Blackboard cookies stay in an `httpOnly` cookie instead of localStorage.
-- Rewired all API routes to use the real connector and cookie-backed session instead of `BLACKBOARD_CONNECTOR_NOT_IMPLEMENTED`.
-- Updated browser fetches to use `credentials: 'same-origin'` so the `httpOnly` session cookie is sent to same-origin Next API routes.
-- Added unit tests for Blackboard helper parsing/cookies and sealed session roundtrip.
-- Updated README to describe the production Next backend and real Blackboard connector behavior.
-- Pushed the implementation to GitHub `apoapps/easy-bb` on `main`.
+- Rebranded visible UI to easy-bb with a sketch-style apoapps logo, new favicon, `Built by apoapps` link, and GitHub icon link in the header.
+- Rebuilt the 3D cube faces with crisp SVG icons instead of emoji so the icons render sharply and are not clipped or covered.
+- Removed the logo stamp that overlapped the cube face.
+- Neutralized the palette while keeping a restrained purple accent.
+- Converted login, dashboard, courses, search, calendar, course detail, profile, modal labels, demo copy, README, and API error messages to English.
+- Removed user-specific school examples and replaced demo data with generic Course A/B/C and Assignment labels.
+- Swapped loading text/spinners for reusable skeleton components.
+- Added a richer dashboard overview for all courses with graded percentage, attention count, stable count, course ranking, recent activity, featured course, urgent, and pending sections.
+- Changed `/courses` from horizontal scroll cards to a responsive grid.
+- Removed fade timing from course cards and dashboard rows so cards/rows render at full opacity immediately in screenshots and production.
 
 ## Failed Attempts
 
-- Initial MFA detection falsely matched Blackboard's always-present MFA modal markup, causing invalid credentials to return `MFA_REQUIRED`. Fixed by checking only resolved hidden fields (`showMFAVerification=true` or `showMFARegistration=true`).
-- Browser/plugin verification was not used for a real login because the password was not available in cleartext. Verification used `next start` and API curls.
-- Vercel deployment was skipped because `vercel whoami` returned `fgfitnessperformance-5117`, and the Vercel connector listed only the FG Fitness team. User explicitly instructed never to upload there.
+- `npx -p playwright node /tmp/easy-bb-verify.cjs` and `npx -p playwright -c 'node ...'` did not expose `require('playwright')` to the script. Resolved by using the cached npx package path through `NODE_PATH`.
+- Playwright initially lacked the Chromium binary. Resolved with `npx -y playwright install chromium`.
+- `next start` correctly disabled demo mode in production, so visual demo QA used `next dev` while production correctness stayed covered by `npm run build`.
 
 ## Next Step
 
-Test `POST /api/login` with real CETYS credentials in the app. If login succeeds but gradebook data is sparse, inspect Blackboard's exact permission response for `/learn/api/public/v2/courses/{courseId}/gradebook/columns/{columnId}/users/{userId}` and adjust the grade endpoint fallback accordingly.
+Push the current UI changes to `origin/main` so the correctly configured Vercel project can build from GitHub. After Vercel finishes, smoke-test `https://easy-bb.vercel.app/` for the English login screen, favicon, GitHub link, apoapps link, and real Blackboard login behavior.

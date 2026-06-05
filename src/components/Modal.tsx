@@ -33,7 +33,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
           <button
             type="button"
             onClick={onClose}
-            aria-label="Cerrar"
+            aria-label="Close"
             className="h-8 w-8 border-2 border-ink bg-bg text-ink hover:bg-primary hover:text-white"
           >
             ✕

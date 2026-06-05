@@ -101,7 +101,7 @@ function resultsArray(value: unknown): JsonRecord[] {
 export function normalizeSchool(input: string): { school: string; origin: string } {
   const school = input.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/\.blackboard\.com$/, '');
   if (!/^[a-z0-9-]+(?:\.[a-z0-9-]+)*$/.test(school)) {
-    throw new BlackboardError(400, 'INVALID_SCHOOL', 'El subdominio de escuela no es valido.');
+    throw new BlackboardError(400, 'INVALID_SCHOOL', 'The school subdomain is not valid.');
   }
   return { school, origin: `https://${school}.blackboard.com` };
 }
@@ -161,7 +161,7 @@ async function getJson(ctx: BlackboardContext, path: string): Promise<unknown> {
   try {
     return JSON.parse(text) as unknown;
   } catch {
-    throw new BlackboardError(502, 'BLACKBOARD_BAD_JSON', 'Blackboard respondio con un formato inesperado.');
+    throw new BlackboardError(502, 'BLACKBOARD_BAD_JSON', 'Blackboard returned an unexpected response format.');
   }
 }
 
@@ -173,8 +173,8 @@ function blackboardApiError(body: string, status: number): string {
   } catch {
     // Keep the generic message below.
   }
-  if (status === 401 || status === 403) return 'Blackboard no autorizo la solicitud. Revisa usuario, contrasena o permisos de la cuenta.';
-  return `Blackboard respondio HTTP ${status}.`;
+  if (status === 401 || status === 403) return 'Blackboard did not authorize the request. Check the username, password, or account permissions.';
+  return `Blackboard returned HTTP ${status}.`;
 }
 
 export async function loginToBlackboard(body: LoginBody): Promise<BlackboardLoginResult> {
@@ -188,7 +188,7 @@ export async function loginToBlackboard(body: LoginBody): Promise<BlackboardLogi
     user_id: body.username,
     password: body.password,
     action: hidden.action || 'login',
-    login: 'Entrar',
+    login: 'Sign in',
   });
 
   const loginResponse = await blackboardFetch(ctx, '/webapps/login/', {
@@ -202,12 +202,12 @@ export async function loginToBlackboard(body: LoginBody): Promise<BlackboardLogi
   });
   const loginText = await loginResponse.clone().text().catch(() => '');
   if (looksLikeMfa(loginText)) {
-    throw new BlackboardError(403, 'MFA_REQUIRED', 'Blackboard pidio verificacion adicional. Completa MFA en Blackboard y vuelve a intentar.');
+    throw new BlackboardError(403, 'MFA_REQUIRED', 'Blackboard requested additional verification. Complete MFA in Blackboard and try again.');
   }
 
   const user = await fetchCurrentUser(ctx).catch(error => {
     if (error instanceof BlackboardError && (error.status === 401 || error.status === 403)) {
-      throw new BlackboardError(401, 'BLACKBOARD_LOGIN_FAILED', 'No se pudo iniciar sesion en Blackboard con esas credenciales.');
+      throw new BlackboardError(401, 'BLACKBOARD_LOGIN_FAILED', 'Blackboard sign in failed with those credentials.');
     }
     throw error;
   });
@@ -241,7 +241,7 @@ export async function fetchCurrentUserFromSession(session: BlackboardSession): P
 
 async function fetchCurrentUser(ctx: BlackboardContext): Promise<User> {
   const raw = asRecord(await getJson(ctx, '/learn/api/public/v1/users/me'));
-  if (!raw) throw new BlackboardError(502, 'BLACKBOARD_BAD_USER', 'Blackboard no regreso perfil de usuario.');
+  if (!raw) throw new BlackboardError(502, 'BLACKBOARD_BAD_USER', 'Blackboard did not return a user profile.');
   return normalizeUser(raw);
 }
 
@@ -251,7 +251,7 @@ function normalizeUser(raw: JsonRecord): User {
     stringValue(raw.familyName),
   ].filter(Boolean).join(' ');
   const id = stringValue(raw.id) || stringValue(raw.uuid) || stringValue(raw.userName);
-  if (!id) throw new BlackboardError(502, 'BLACKBOARD_BAD_USER', 'El perfil de Blackboard no incluye ID de usuario.');
+  if (!id) throw new BlackboardError(502, 'BLACKBOARD_BAD_USER', 'The Blackboard profile does not include a user ID.');
   return {
     id,
     name: stringValue(raw.name) || name || stringValue(raw.userName) || id,

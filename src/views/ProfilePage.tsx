@@ -59,10 +59,10 @@ export function ProfilePage({ user, onLogout }: { user: User; onLogout: () => vo
         <div className="text-sm opacity-90 font-mono mt-1">{user.studentId || user.id}</div>
 
         <div className="grid grid-cols-2 gap-2 mt-6">
-          <StatTile value={`${(k.promedioGeneral || 0).toFixed(1)}%`} label="Promedio" onClick={() => navigate('/dashboard')} color="bg-ink-soft text-white" />
-          <StatTile value={k.materiasActivas} label="Materias" onClick={() => navigate('/courses')} color="bg-ink-soft text-white" />
-          <StatTile value={k.actividadesCalificadas || 0} label="Calificadas" onClick={() => navigate('/dashboard')} color="bg-ink-soft text-white" />
-          <StatTile value={k.urgentes} label="Urgentes" onClick={() => navigate('/dashboard')} color="bg-ink-soft text-white" />
+          <StatTile value={`${(k.promedioGeneral || 0).toFixed(1)}%`} label="Average" onClick={() => navigate('/dashboard')} color="bg-ink-soft text-white" />
+          <StatTile value={k.materiasActivas} label="Courses" onClick={() => navigate('/courses')} color="bg-ink-soft text-white" />
+          <StatTile value={k.actividadesCalificadas || 0} label="Graded" onClick={() => navigate('/dashboard')} color="bg-ink-soft text-white" />
+          <StatTile value={k.urgentes} label="Urgent" onClick={() => navigate('/dashboard')} color="bg-ink-soft text-white" />
         </div>
 
         <button
@@ -70,19 +70,19 @@ export function ProfilePage({ user, onLogout }: { user: User; onLogout: () => vo
           onClick={onLogout}
           className="mt-6 w-full px-4 py-2.5 bg-bad text-white border-2 border-white shadow-brutal-sm font-display uppercase tracking-wide transition-transform hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
         >
-          Cerrar sesión
+          Sign out
         </button>
       </div>
 
       {/* Terms */}
       <div>
-        <h3 className="font-display text-xl mb-4">Términos cursados</h3>
+        <h3 className="font-display text-xl mb-4">Terms</h3>
         <div className="flex flex-col gap-4">
           {[...termMap.entries()].map(([term, ms]) => (
             <Card key={term} className="p-4">
               <h4 className="font-display text-base mb-3 flex items-center justify-between">
                 <span>{term}</span>
-                <span className="text-xs text-muted font-sans font-normal">{ms.length} materias</span>
+                <span className="text-xs text-muted font-sans font-normal">{ms.length} courses</span>
               </h4>
               <ul className="divide-y divide-ink/20">
                 {ms.map(m => (

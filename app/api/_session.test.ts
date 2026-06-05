@@ -4,8 +4,8 @@ import { buildSession, createSessionCookie, getSessionFromRequest, sealSession }
 describe('sealed Next backend session', () => {
   it('roundtrips a Blackboard session through an httpOnly cookie', () => {
     const token = sealSession(buildSession({
-      school: 'cetys',
-      origin: 'https://cetys.blackboard.com',
+      school: 'school',
+      origin: 'https://school.blackboard.com',
       userId: '_1_1',
       cookieHeader: 'JSESSIONID=abc',
     }));

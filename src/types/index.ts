@@ -1,4 +1,4 @@
-// ─── TypeScript types for BB DASH ────────────────────────────
+// ─── TypeScript types for easy-bb ────────────────────────────
 
 export interface User {
   id: string;

@@ -11,6 +11,6 @@ export async function GET(request: Request) {
     return Response.json(await fetchDashboardFromSession(session));
   } catch (error) {
     if (error instanceof BlackboardError) return jsonError(error.status, error.code, error.message);
-    return jsonError(502, 'BLACKBOARD_UNAVAILABLE', 'No se pudo leer el dashboard desde Blackboard.');
+    return jsonError(502, 'BLACKBOARD_UNAVAILABLE', 'Could not read the dashboard from Blackboard.');
   }
 }
