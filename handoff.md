@@ -4,7 +4,7 @@ Prepare `easy-bb` for production so demo/mock data cannot leak in production, th
 
 ## Current State
 
-Production build, lint, and tests are passing. Demo mode is development-only and `?demo=1` is ignored in production. Demo data is dynamically imported only from the development-only mock API path. The old personal demo fixture was replaced with synthetic data. Git repo is initialized on `main` and pushed to `https://github.com/apoapps/easy-bb.git`. Vercel CLI is currently authenticated as `fgfitnessperformance-5117`, so Vercel link/deploy was intentionally not performed with that session.
+Production build, lint, and tests are passing as of the final check in this session. Demo mode is development-only and `?demo=1` is ignored in production. Demo data is dynamically imported only from the development-only mock API path. The old personal demo fixture was replaced with synthetic data. Git repo is initialized on `main` and pushed to `https://github.com/apoapps/easy-bb.git`. Vercel CLI is currently authenticated as `fgfitnessperformance-5117`, so Vercel link/deploy was intentionally not performed with that session.
 
 ## Files In Flight
 
@@ -40,6 +40,7 @@ Production build, lint, and tests are passing. Demo mode is development-only and
 - `vercel.json`: added explicit Vercel Vite build configuration.
 - `.vercelignore`: excludes env files, local build output, tests, and handoff from Vercel upload.
 - `.env.example`: documented optional `VITE_API_BASE_URL`.
+- Final validation: `npm test`, `npm run lint`, and `npm run build` passed; search found no old personal demo identifiers in `dist`, `README.md`, or `src/lib/demoData.ts`.
 
 ## Failed Attempts
 
