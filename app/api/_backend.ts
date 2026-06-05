@@ -12,15 +12,8 @@ interface ApiError {
   error: string;
 }
 
-const BLACKBOARD_NOT_IMPLEMENTED =
-  'Backend Next activo. Falta implementar el conector real de Blackboard en app/api para iniciar sesion y leer cursos/calificaciones.';
-
 export function jsonError(status: number, code: string, error: string): Response {
   return Response.json({ ok: false, code, error } satisfies ApiError, { status });
-}
-
-export function backendNotImplemented(feature: string): Response {
-  return jsonError(501, 'BLACKBOARD_CONNECTOR_NOT_IMPLEMENTED', `${BLACKBOARD_NOT_IMPLEMENTED} Pendiente: ${feature}.`);
 }
 
 export async function parseLoginBody(request: Request): Promise<LoginBody> {
@@ -43,14 +36,6 @@ export function getSessionId(request: Request): string | null {
 
 export function missingSession(): Response {
   return jsonError(401, 'SESSION_REQUIRED', 'Inicia sesion para consultar datos de Blackboard.');
-}
-
-export function loginNotImplemented(): Response {
-  return backendNotImplemented('login Blackboard');
-}
-
-export function dashboardNotImplemented(): Response {
-  return backendNotImplemented('dashboard Blackboard');
 }
 
 export type LoginResponse = {

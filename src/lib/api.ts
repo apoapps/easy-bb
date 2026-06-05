@@ -81,7 +81,7 @@ async function request<T>(path: string, opts: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   const session = getSession();
   if (session?.sessionId) headers['X-BB-Session'] = session.sessionId;
-  const r = await fetch(getCurrentApiBaseUrl() + path, { ...opts, headers: mergeHeaders(headers, opts.headers) });
+  const r = await fetch(getCurrentApiBaseUrl() + path, { ...opts, credentials: 'same-origin', headers: mergeHeaders(headers, opts.headers) });
   const contentType = r.headers.get('content-type') || '';
   const j = (contentType.includes('application/json') ? await r.json() : { ok: false, error: await r.text() }) as ApiEnvelope;
   if (!r.ok || j.ok === false) throw new Error(j.error || 'HTTP ' + r.status);

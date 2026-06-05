@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { backendNotImplemented, parseLoginBody } from './_backend';
+import { jsonError, parseLoginBody } from './_backend';
 
 describe('Next backend helpers', () => {
   it('does not ask for an external backend URL', async () => {
-    const response = backendNotImplemented('login');
+    const response = jsonError(502, 'BLACKBOARD_UNAVAILABLE', 'No se pudo conectar con Blackboard.');
     const body = await response.json();
 
-    expect(response.status).toBe(501);
-    expect(body.code).toBe('BLACKBOARD_CONNECTOR_NOT_IMPLEMENTED');
+    expect(response.status).toBe(502);
+    expect(body.code).toBe('BLACKBOARD_UNAVAILABLE');
     expect(body.error).not.toMatch(/BACKEND_API_BASE_URL|NEXT_PUBLIC_API_BASE_URL|proxy|proxyear/i);
   });
 

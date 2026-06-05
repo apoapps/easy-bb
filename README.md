@@ -21,7 +21,9 @@ Rutas del backend Next:
 - `GET /api/memberships`
 - `POST /api/logout`
 
-El conector real de Blackboard debe implementarse dentro de `app/api`. Mientras ese conector no exista, el backend responde `BLACKBOARD_CONNECTOR_NOT_IMPLEMENTED`.
+`POST /api/login` inicia sesion contra Blackboard desde el backend Next, guarda la cookie de Blackboard en una cookie `httpOnly` sellada, y las demas rutas leen Blackboard desde `app/api` sin exponer datos sensibles al navegador.
+
+La lectura de calificaciones usa las APIs publicas de Blackboard Learn para cursos, columnas de gradebook y calificaciones por columna. Si Blackboard exige MFA o bloquea permisos de gradebook para la cuenta, el backend responde con un error explicito en vez de inventar datos.
 
 ## Scripts
 
