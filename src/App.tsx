@@ -1,15 +1,17 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { TopBar, type RouteKey } from './components/TopBar';
 import { ToastHost } from './components/Toast';
 import { pushToast } from './components/toastBus';
-import { LoginPage } from './pages/LoginPage';
-import { DashboardPage } from './pages/DashboardPage';
-import { CoursesPage } from './pages/CoursesPage';
-import { CourseDetailPage } from './pages/CourseDetailPage';
-import { SearchPage } from './pages/SearchPage';
-import { CalendarPage } from './pages/CalendarPage';
-import { ProfilePage } from './pages/ProfilePage';
+import { LoginPage } from './views/LoginPage';
+import { DashboardPage } from './views/DashboardPage';
+import { CoursesPage } from './views/CoursesPage';
+import { CourseDetailPage } from './views/CourseDetailPage';
+import { SearchPage } from './views/SearchPage';
+import { CalendarPage } from './views/CalendarPage';
+import { ProfilePage } from './views/ProfilePage';
 import { api, getSession, getDemoMode, type Session } from './lib/api';
 import type { User } from './types';
 

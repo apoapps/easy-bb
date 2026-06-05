@@ -1,56 +1,65 @@
 ## Goal
 
-Prepare `easy-bb` for production so demo/mock data cannot leak in production, then initialize/push the repo to `https://github.com/apoapps/easy-bb.git` and configure/deploy on Vercel under the `alexlink2004` / Alejandro Apodaca account, explicitly avoiding `fgfitness`.
+Convert `easy-bb` from Vite SPA to Next.js so the UI and `/api/*` routes live in the same production project, avoiding Vercel `NOT_FOUND` for `/api/login` while keeping mock/demo data out of production.
 
 ## Current State
 
-Production build, lint, and tests are passing as of the final check in this session. Demo mode is development-only and `?demo=1` is ignored in production. Demo data is dynamically imported only from the development-only mock API path. The old personal demo fixture was replaced with synthetic data. Git repo is initialized on `main` and pushed to `https://github.com/apoapps/easy-bb.git`. Vercel CLI is currently authenticated as `fgfitnessperformance-5117`, so Vercel link/deploy was intentionally not performed with that session.
+The app is now a Next.js App Router project. The existing React dashboard is mounted client-only at `/`, preserving the current UI and hash routes. Next route handlers exist for `/api/login`, `/api/dashboard`, `/api/me`, `/api/memberships`, and `/api/logout`. If no real backend is configured, these routes return JSON `BACKEND_NOT_CONFIGURED` instead of Vercel's generic `NOT_FOUND`.
+
+Final validation passed:
+
+- `npm test`
+- `npm run lint`
+- `npm run build`
+- `curl -i -X POST http://localhost:3000/api/login ...` returned HTTP 501 JSON with `BACKEND_NOT_CONFIGURED`, proving the route exists.
+- Playwright opened `http://localhost:3000`; page title was `easy-bb`, UI loaded at `/#/login`, and only normal React DevTools/HMR dev logs remained.
 
 ## Files In Flight
 
-- `src/lib/api.ts`
-- `src/lib/apiConfig.ts`
-- `src/lib/apiConfig.test.ts`
-- `src/lib/demoData.ts`
+- `app/layout.tsx`
+- `app/page.tsx`
+- `app/client-app.tsx`
+- `app/api/_shared.ts`
+- `app/api/_shared.test.ts`
+- `app/api/login/route.ts`
+- `app/api/logout/route.ts`
+- `app/api/dashboard/route.ts`
+- `app/api/me/route.ts`
+- `app/api/memberships/route.ts`
 - `src/App.tsx`
-- `src/pages/LoginPage.tsx`
-- `src/pages/SearchPage.tsx`
-- `src/components/Chip.tsx`
-- `src/components/Toast.tsx`
-- `src/components/toastBus.ts`
+- `src/lib/api.ts`
+- `src/views/*`
 - `package.json`
 - `package-lock.json`
-- `README.md`
+- `tsconfig.json`
+- `next-env.d.ts`
+- `tailwind.config.js`
+- `eslint.config.js`
 - `vercel.json`
-- `.vercelignore`
 - `.env.example`
+- `.gitignore`
+- `.vercelignore`
+- `README.md`
 - `handoff.md`
 
 ## Changed
 
-- `src/lib/api.ts`: removed static demo data import, added production-safe API base handling, dynamic dev-only mock loading, safer response parsing, and non-sensitive login defaults.
-- `src/lib/apiConfig.ts`: added tested helpers for demo-mode policy and API base resolution.
-- `src/lib/apiConfig.test.ts`: added Vitest coverage for production demo lockout and API base behavior.
-- `src/lib/demoData.ts`: replaced personal/specific fixture data with synthetic demo data.
-- `src/App.tsx`, `src/pages/LoginPage.tsx`: removed sensitive default user strings and updated toast imports.
-- `src/pages/SearchPage.tsx`, `src/components/Chip.tsx`: removed lint-blocking `any` usage and control-character highlighting.
-- `src/components/Toast.tsx`, `src/components/toastBus.ts`: split toast bus from React component for Vite fast-refresh lint.
-- `package.json`, `package-lock.json`: added Vitest and `npm test`.
-- `README.md`: replaced Vite template with production notes for `easy-bb`.
-- `vercel.json`: added explicit Vercel Vite build configuration.
-- `.vercelignore`: excludes env files, local build output, tests, and handoff from Vercel upload.
-- `.env.example`: documented optional `VITE_API_BASE_URL`.
-- Final validation: `npm test`, `npm run lint`, and `npm run build` passed; search found no old personal demo identifiers in `dist`, `README.md`, or `src/lib/demoData.ts`.
+- Added Next.js and removed Vite runtime dependencies/scripts.
+- Added App Router shell with `app/layout.tsx`, `app/page.tsx`, and client-only `app/client-app.tsx` to avoid `document is not defined` during prerender.
+- Added Next route handlers for all API paths used by the client.
+- Added `BACKEND_API_BASE_URL` / `NEXT_PUBLIC_API_BASE_URL` support and proxy behavior for production.
+- Converted client env usage from `import.meta.env` to `process.env.NODE_ENV` and `NEXT_PUBLIC_API_BASE_URL`.
+- Moved internal SPA screens from `src/pages` to `src/views` so Next does not treat them as Pages Router files.
+- Removed Vite files: `index.html`, `src/main.tsx`, `vite.config.ts`, `tsconfig.app.json`, `tsconfig.node.json`.
+- Updated Tailwind, ESLint, Vercel config, README, env example, and ignores for Next.
 
 ## Failed Attempts
 
-- `git status --short --branch` failed initially because the folder was not a git repository.
-- First `npx vitest run src/lib/apiConfig.test.ts` failed as expected because `apiConfig` did not exist yet.
-- First `npm run lint` failed on existing lint issues plus new `api.ts` typing issues; fixed before proceeding.
-- First `git push -u origin main` failed because GitHub active account was `fgfitnessperformance`; switched `gh` active account to `apoapps` and push succeeded.
-- `vercel teams switch alexlink2004` failed with `scope_not_accessible`; current Vercel session only has access to `fg-fitness-performances-projects`, so no Vercel project was linked or deployed with that scope.
-- Claimable Vercel deploy script returned "Your deployment is building" without a `previewUrl`, then exited because it could not extract URLs.
+- First `next build` failed because `src/pages` conflicted with `app`; fixed by moving screens to `src/views`.
+- Second `next build` failed with `document is not defined` because `HashRouter` was prerendered; fixed with a client-only dynamic wrapper.
+- Local browser check first showed `favicon.ico` 404; fixed by adding metadata icon pointing to `/favicon.svg`.
+- Vercel deployment remains intentionally unattempted with the local CLI because it is authenticated as `fgfitnessperformance-5117`, not `alexlink2004`.
 
 ## Next Step
 
-Authenticate Vercel as `alexlink2004` or provide a Vercel token for that account, then run `vercel link --yes --project easy-bb --scope alexlink2004` and `vercel --prod --scope alexlink2004`. Do not use the currently authenticated `fgfitnessperformance-5117` session.
+Commit and push the Next.js migration to `origin/main`. Then deploy from Vercel using the `alexlink2004` scope only. Configure `BACKEND_API_BASE_URL` in Vercel if a real backend is available; otherwise `/api/login` will correctly return `BACKEND_NOT_CONFIGURED` JSON instead of a Vercel `NOT_FOUND`.

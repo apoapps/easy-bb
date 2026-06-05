@@ -1,6 +1,5 @@
 {
-  "framework": "vite",
+  "framework": "nextjs",
   "installCommand": "npm ci",
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist"
+  "buildCommand": "npm run build"
 }

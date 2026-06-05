@@ -8,7 +8,7 @@ const LAST_LOGIN_KEY = 'bb-dash:lastlogin';
 function isDemo(): boolean {
   if (typeof window === 'undefined') return false;
   return shouldUseDemoMode({
-    dev: import.meta.env.DEV,
+    dev: process.env.NODE_ENV === 'development',
     urlSearch: window.location.search,
     protocol: window.location.protocol,
     hostname: window.location.hostname,
@@ -20,7 +20,7 @@ export function getDemoMode(): boolean { return isDemo(); }
 function getCurrentApiBaseUrl(): string {
   const origin = typeof window === 'undefined' ? '' : window.location.origin;
   return getApiBaseUrl({
-    configuredApiBaseUrl: import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:3001' : undefined),
+    configuredApiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : undefined),
     origin,
   });
 }
@@ -92,7 +92,7 @@ async function request<T>(path: string, opts: RequestInit = {}): Promise<T> {
 }
 
 async function mockApi(path: string): Promise<unknown> {
-  if (!import.meta.env.DEV) throw new Error('Demo mode is disabled in production');
+  if (process.env.NODE_ENV !== 'development') throw new Error('Demo mode is disabled in production');
   const { DEMO_DASHBOARD } = await import('./demoData');
 
   if (path === '/api/login') {
