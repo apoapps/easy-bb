@@ -1,5 +1,6 @@
-import { proxyOrExplainMissingBackend } from '../_shared';
+import { dashboardNotImplemented, getSessionId, missingSession } from '../_backend';
 
 export function GET(request: Request) {
-  return proxyOrExplainMissingBackend(request, '/api/dashboard', ['GET']);
+  if (!getSessionId(request)) return missingSession();
+  return dashboardNotImplemented();
 }

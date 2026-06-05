@@ -16,7 +16,7 @@ export function Card({ children, tone = 'default', hover, className = '', ...res
   return (
     <div
       className={[
-        'relative border-2 border-ink shadow-brutal',
+        'relative min-w-0 overflow-hidden border-2 border-ink shadow-brutal',
         TONES[tone],
         hover ? 'transition-transform duration-150 hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-brutal-lg' : '',
         className,

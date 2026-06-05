@@ -51,17 +51,17 @@ export function LoginPage({ onLogin }: { onLogin?: () => void }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-10 bg-bg">
-      <div className="w-full max-w-md flex flex-col items-center gap-8">
-        <Dice3D rotation={diceRotation} size={120} />
+    <div className="min-h-screen w-full overflow-x-hidden flex items-center justify-center px-3 py-6 sm:px-6 sm:py-10 bg-bg">
+      <div className="w-full max-w-md min-w-0 flex flex-col items-center gap-5 sm:gap-8">
+        <Dice3D rotation={diceRotation} size={104} />
 
         <div
           className={[
-            'w-full p-8 bg-surface border-4 border-ink shadow-brutal-lg',
+            'w-full min-w-0 p-5 sm:p-8 bg-surface border-4 border-ink shadow-brutal-sm sm:shadow-brutal-lg',
             shake ? 'animate-shake' : '',
           ].join(' ')}
         >
-          <h1 className="font-display text-4xl leading-none tracking-tight">BB DASH</h1>
+          <h1 className="font-display text-3xl sm:text-4xl leading-none tracking-tight">BB DASH</h1>
           <p className="text-muted text-sm mt-2 mb-6">
             Blackboard sin dolor · neobrutalismo morado
           </p>
@@ -77,8 +77,8 @@ export function LoginPage({ onLogin }: { onLogin?: () => void }) {
               <label htmlFor="lg-school" className="block text-xs font-display uppercase tracking-widest mb-1.5">
                 Escuela (subdominio)
               </label>
-              <div className="flex items-stretch">
-                <span className="px-4 py-3 bg-ink text-white font-bold border-2 border-ink border-r-0">https://</span>
+              <div className="grid grid-cols-[auto_minmax(0,1fr)] sm:grid-cols-[auto_minmax(0,1fr)_auto] items-stretch">
+                <span className="px-2.5 sm:px-4 py-3 bg-ink text-white text-sm sm:text-base font-bold border-2 border-ink border-r-0">https://</span>
                 <input
                   id="lg-school"
                   type="text"
@@ -87,9 +87,9 @@ export function LoginPage({ onLogin }: { onLogin?: () => void }) {
                   onFocus={() => setFocused(0)}
                   onBlur={() => setFocused(null)}
                   autoComplete="off"
-                  className="flex-1 px-3 py-3 border-2 border-ink bg-surface outline-none focus:shadow-brutal"
+                  className="min-w-0 w-full px-3 py-3 border-2 border-ink bg-surface outline-none focus:shadow-brutal"
                 />
-                <span className="px-4 py-3 bg-ink text-white font-bold border-2 border-ink border-l-0">.blackboard.com</span>
+                <span className="col-span-2 sm:col-span-1 px-3 sm:px-4 py-2.5 sm:py-3 bg-ink text-white text-sm sm:text-base font-bold border-2 border-ink border-t-0 sm:border-t-2 sm:border-l-0 text-center sm:text-left">.blackboard.com</span>
               </div>
             </div>
 
@@ -149,7 +149,7 @@ export function LoginPage({ onLogin }: { onLogin?: () => void }) {
             </button>
 
             {error && (
-              <div className="mt-2 p-3 bg-bad text-white border-2 border-ink shadow-brutal-sm font-bold">
+              <div className="mt-2 min-w-0 break-words p-3 bg-bad text-white border-2 border-ink shadow-brutal-sm font-bold">
                 ❌ {error}
               </div>
             )}

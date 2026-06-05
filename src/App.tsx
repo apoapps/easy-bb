@@ -117,7 +117,7 @@ function AppShell() {
         user={user ? { name: user.name || user.userName || user.id, email: user.email } : null}
         onLogout={onLogout}
       />
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto w-full overflow-hidden px-4 py-6 sm:px-6 sm:py-8">
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />

@@ -32,27 +32,29 @@ export function KpiCard({ label, value, tone = 'default', icon, gauge, pulse, su
       hover={!pulse}
       onClick={onClick}
       className={[
-        'p-5',
+        'p-4 sm:p-5 min-h-[128px]',
         pulse ? 'animate-pulse-brutal' : '',
         onClick ? 'cursor-pointer' : '',
       ].join(' ')}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="text-xs font-display uppercase tracking-widest text-muted">{label}</div>
-          <div className={`mt-2 font-display text-4xl leading-none ${tone === 'primary' ? 'text-white' : 'text-ink'}`}>
-            {display}
-            <span className="ml-1 text-base text-muted">{suffix}</span>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+        <div className="min-w-0 overflow-hidden">
+          <div className="text-[11px] sm:text-xs font-display uppercase tracking-wider sm:tracking-widest text-muted break-words">{label}</div>
+          <div className={`mt-2 flex min-w-0 items-baseline overflow-hidden font-display text-3xl sm:text-4xl leading-none ${tone === 'primary' ? 'text-white' : 'text-ink'}`}>
+            <span className="min-w-0 truncate">{display}</span>
+            {suffix ? <span className="ml-1 shrink-0 text-sm sm:text-base text-muted">{suffix}</span> : null}
           </div>
         </div>
-        {icon ? <div className="text-2xl">{icon}</div> : null}
-        {gauge ? (
-          <div className="shrink-0">
-            <Gauge value={value} size={64} />
-          </div>
-        ) : null}
+        <div className="shrink-0">
+          {icon ? <div className="text-2xl leading-none">{icon}</div> : null}
+          {gauge ? (
+            <div className="shrink-0">
+              <Gauge value={value} size={56} />
+            </div>
+          ) : null}
+        </div>
       </div>
-      <div className={`mt-3 h-1 w-12 border-2 border-ink ${toneClasses[tone].split(' ')[0]}`} />
+      <div className={`mt-4 h-1 w-12 border-2 border-ink ${toneClasses[tone].split(' ')[0]}`} />
     </Card>
   )
 }

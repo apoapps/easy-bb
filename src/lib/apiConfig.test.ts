@@ -24,19 +24,8 @@ describe('apiConfig', () => {
     expect(demoMode).toBe(true);
   });
 
-  it('uses the configured production API base instead of localhost', () => {
-    const apiBase = getApiBaseUrl({
-      configuredApiBaseUrl: 'https://api.easy-bb.app',
-      origin: 'https://easy-bb.vercel.app',
-    });
-
-    expect(apiBase).toBe('https://api.easy-bb.app');
-  });
-
-  it('falls back to same-origin API paths in production', () => {
-    const apiBase = getApiBaseUrl({
-      origin: 'https://easy-bb.vercel.app',
-    });
+  it('always uses the same Next.js origin for API paths', () => {
+    const apiBase = getApiBaseUrl('https://easy-bb.vercel.app/');
 
     expect(apiBase).toBe('https://easy-bb.vercel.app');
   });

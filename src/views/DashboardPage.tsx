@@ -55,7 +55,7 @@ export function DashboardPage() {
 
   if (loading || !d) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="skeleton h-32 border-2 border-ink" />
         ))}
@@ -91,15 +91,15 @@ export function DashboardPage() {
           <button
             type="button"
             onClick={() => navigate(`/course/${lastMateria.courseId}`)}
-            className="w-full text-left flex items-center gap-6 p-6 border-2 border-ink shadow-brutal text-white transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-brutal-lg"
+            className="w-full min-w-0 text-left flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 p-4 sm:p-6 border-2 border-ink shadow-brutal text-white transition-transform hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-brutal-lg"
             style={{ background: `linear-gradient(135deg, ${c.bg} 0%, #0A0A0A 200%)` }}
           >
-            <div className="text-5xl">🎓</div>
+            <div className="text-4xl sm:text-5xl leading-none">🎓</div>
             <div className="flex-1 min-w-0">
               <div className="text-[10px] font-display uppercase tracking-widest opacity-80">▶ Curso del día</div>
-              <div className="font-display text-2xl leading-tight mt-1">{lastMateria.displayName}</div>
+              <div className="font-display text-xl sm:text-2xl leading-tight mt-1 break-words">{lastMateria.displayName}</div>
             </div>
-            <div className="font-mono text-4xl font-bold bg-white text-ink px-3 py-1 border-2 border-ink shadow-brutal-sm">
+            <div className="self-start sm:self-center shrink-0 font-mono text-3xl sm:text-4xl font-bold bg-white text-ink px-3 py-1 border-2 border-ink shadow-brutal-sm">
               {(lastMateria.promedio || 0).toFixed(1)}%
             </div>
           </button>
@@ -188,19 +188,19 @@ function ListRow({
         transition: 'all 0.35s',
       }}
       className="
-        group flex items-center gap-3 p-3
+        group flex min-w-0 items-center gap-3 p-3
         border-2 border-ink bg-surface
         hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-brutal-sm
         transition-all duration-100
         text-left
       "
     >
-      <span className="text-xl">{icon}</span>
+      <span className="shrink-0 text-xl">{icon}</span>
       <div className="flex-1 min-w-0">
         <div className="font-bold truncate">{name}</div>
         <div className="text-xs text-muted font-mono truncate">{meta}</div>
       </div>
-      {chip}
+      <div className="shrink-0">{chip}</div>
     </button>
   );
 }

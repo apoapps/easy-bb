@@ -1,5 +1,6 @@
-import { proxyOrExplainMissingBackend } from '../_shared';
+import { backendNotImplemented, getSessionId, missingSession } from '../_backend';
 
 export function GET(request: Request) {
-  return proxyOrExplainMissingBackend(request, '/api/me', ['GET']);
+  if (!getSessionId(request)) return missingSession();
+  return backendNotImplemented('perfil Blackboard');
 }

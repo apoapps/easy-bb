@@ -19,10 +19,7 @@ export function getDemoMode(): boolean { return isDemo(); }
 
 function getCurrentApiBaseUrl(): string {
   const origin = typeof window === 'undefined' ? '' : window.location.origin;
-  return getApiBaseUrl({
-    configuredApiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : undefined),
-    origin,
-  });
+  return getApiBaseUrl(origin);
 }
 
 // ─── Session storage ──────────────────────────────────────────

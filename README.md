@@ -4,31 +4,24 @@ Dashboard web en Next.js para consultar materias, calificaciones y pendientes de
 
 ## Produccion
 
-- La app y las rutas `/api/*` viven en el mismo proyecto Next.js.
+- Next.js sirve la app y tambien es el backend.
+- Las rutas `/api/*` viven en `app/api`.
+- No hay URL de backend externa que configurar.
 - El modo demo solo funciona en desarrollo.
 - `?demo=1` se ignora en produccion.
-- Los datos demo se cargan con `import()` y no se incluyen como modo activo de produccion.
-- Si no hay backend real configurado, `/api/login` responde JSON con `BACKEND_NOT_CONFIGURED` en vez de un 404 generico de Vercel.
+- Los datos demo no se activan en produccion.
 
-## API real
+## API local
 
-Configura una de estas variables en Vercel:
-
-```bash
-# Recomendado: el servidor Next proxyeara /api/* a este backend.
-BACKEND_API_BASE_URL=https://tu-backend.com
-
-# Alternativa: el browser llamara directo a esta API publica.
-NEXT_PUBLIC_API_BASE_URL=https://tu-backend.com
-```
-
-El backend real debe exponer:
+Rutas del backend Next:
 
 - `POST /api/login`
 - `GET /api/dashboard`
 - `GET /api/me`
 - `GET /api/memberships`
 - `POST /api/logout`
+
+El conector real de Blackboard debe implementarse dentro de `app/api`. Mientras ese conector no exista, el backend responde `BLACKBOARD_CONNECTOR_NOT_IMPLEMENTED`.
 
 ## Scripts
 

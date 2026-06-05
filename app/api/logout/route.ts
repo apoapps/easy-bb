@@ -1,5 +1,3 @@
-import { proxyOrExplainMissingBackend } from '../_shared';
-
-export function POST(request: Request) {
-  return proxyOrExplainMissingBackend(request, '/api/logout', ['POST']);
+export function POST() {
+  return Response.json({ ok: true });
 }
