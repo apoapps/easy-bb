@@ -4,7 +4,7 @@ Prepare `easy-bb` for production so demo/mock data cannot leak in production, th
 
 ## Current State
 
-Production build, lint, and tests are passing. Demo mode is development-only and `?demo=1` is ignored in production. Demo data is dynamically imported only from the development-only mock API path. The old personal demo fixture was replaced with synthetic data.
+Production build, lint, and tests are passing. Demo mode is development-only and `?demo=1` is ignored in production. Demo data is dynamically imported only from the development-only mock API path. The old personal demo fixture was replaced with synthetic data. Git repo is initialized on `main` and pushed to `https://github.com/apoapps/easy-bb.git`. Vercel CLI is currently authenticated as `fgfitnessperformance-5117`, so Vercel link/deploy was intentionally not performed with that session.
 
 ## Files In Flight
 
@@ -22,6 +22,7 @@ Production build, lint, and tests are passing. Demo mode is development-only and
 - `package-lock.json`
 - `README.md`
 - `vercel.json`
+- `.vercelignore`
 - `.env.example`
 - `handoff.md`
 
@@ -37,6 +38,7 @@ Production build, lint, and tests are passing. Demo mode is development-only and
 - `package.json`, `package-lock.json`: added Vitest and `npm test`.
 - `README.md`: replaced Vite template with production notes for `easy-bb`.
 - `vercel.json`: added explicit Vercel Vite build configuration.
+- `.vercelignore`: excludes env files, local build output, tests, and handoff from Vercel upload.
 - `.env.example`: documented optional `VITE_API_BASE_URL`.
 
 ## Failed Attempts
@@ -44,7 +46,10 @@ Production build, lint, and tests are passing. Demo mode is development-only and
 - `git status --short --branch` failed initially because the folder was not a git repository.
 - First `npx vitest run src/lib/apiConfig.test.ts` failed as expected because `apiConfig` did not exist yet.
 - First `npm run lint` failed on existing lint issues plus new `api.ts` typing issues; fixed before proceeding.
+- First `git push -u origin main` failed because GitHub active account was `fgfitnessperformance`; switched `gh` active account to `apoapps` and push succeeded.
+- `vercel teams switch alexlink2004` failed with `scope_not_accessible`; current Vercel session only has access to `fg-fitness-performances-projects`, so no Vercel project was linked or deployed with that scope.
+- Claimable Vercel deploy script returned "Your deployment is building" without a `previewUrl`, then exited because it could not extract URLs.
 
 ## Next Step
 
-Initialize git, commit the full production-ready project, add remote `https://github.com/apoapps/easy-bb.git`, push `main`, then link/deploy to Vercel using the `alexlink2004` scope only and verify the selected scope is not `fgfitness`.
+Authenticate Vercel as `alexlink2004` or provide a Vercel token for that account, then run `vercel link --yes --project easy-bb --scope alexlink2004` and `vercel --prod --scope alexlink2004`. Do not use the currently authenticated `fgfitnessperformance-5117` session.
