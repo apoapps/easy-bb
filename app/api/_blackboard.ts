@@ -98,6 +98,32 @@ function resultsArray(value: unknown): JsonRecord[] {
   });
 }
 
+async function fetchPagedResults(ctx: BlackboardContext, initialPath: string, maxPages = 25): Promise<JsonRecord[]> {
+  const all: JsonRecord[] = [];
+  let path: string | undefined = initialPath;
+  for (let page = 0; path && page < maxPages; page++) {
+    const data = await getJson(ctx, path);
+    all.push(...resultsArray(data));
+    const paging = asRecord(asRecord(data)?.paging);
+    const nextPage = stringValue(paging?.nextPage);
+    path = nextPage ? new URL(nextPage, ctx.origin).toString() : undefined;
+  }
+  return all;
+}
+
+async function mapLimit<T, R>(items: T[], limit: number, mapper: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = [];
+  let nextIndex = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (nextIndex < items.length) {
+      const current = nextIndex++;
+      results[current] = await mapper(items[current]);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
 export function normalizeSchool(input: string): { school: string; origin: string } {
   const school = input.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/\.blackboard\.com$/, '');
   if (!/^[a-z0-9-]+(?:\.[a-z0-9-]+)*$/.test(school)) {
@@ -245,22 +271,43 @@ async function fetchCurrentUser(ctx: BlackboardContext): Promise<User> {
   return normalizeUser(raw);
 }
 
-function normalizeUser(raw: JsonRecord): User {
-  const name = [
+function looksLikeStudentNumber(value: string | undefined): boolean {
+  return !!value && /^m\d{4,}$/i.test(value.trim());
+}
+
+function isUsablePersonName(value: string | undefined, userName: string | undefined): boolean {
+  if (!value) return false;
+  if (userName && value.toLowerCase() === userName.toLowerCase()) return false;
+  if (looksLikeStudentNumber(value)) return false;
+  if (/^[a-z]?\d{4,}$/i.test(value)) return false;
+  return /[a-záéíóúñ]/i.test(value);
+}
+
+export function normalizeUser(raw: JsonRecord): User {
+  const userName = stringValue(raw.userName);
+  const fullName = [
     stringValue(raw.givenName),
     stringValue(raw.familyName),
   ].filter(Boolean).join(' ');
   const id = stringValue(raw.id) || stringValue(raw.uuid) || stringValue(raw.userName);
   if (!id) throw new BlackboardError(502, 'BLACKBOARD_BAD_USER', 'The Blackboard profile does not include a user ID.');
+  const rawName = stringValue(raw.name);
+  let name = 'Student';
+  if (isUsablePersonName(rawName, userName)) {
+    name = rawName!;
+  } else if (isUsablePersonName(fullName, userName)) {
+    name = fullName;
+  }
+  const studentId = stringValue(raw.studentId) || (looksLikeStudentNumber(userName) ? userName : undefined);
   return {
     id,
-    name: stringValue(raw.name) || name || stringValue(raw.userName) || id,
+    name,
     givenName: stringValue(raw.givenName),
     familyName: stringValue(raw.familyName),
     email: stringValue(raw.email),
-    studentId: stringValue(raw.studentId),
+    studentId,
     batchUid: stringValue(raw.externalId) || stringValue(raw.batchUid),
-    userName: stringValue(raw.userName),
+    userName,
     avatar: stringValue(raw.avatar),
   };
 }
@@ -275,8 +322,8 @@ export async function fetchMembershipsFromSession(session: BlackboardSession): P
 }
 
 async function fetchMemberships(ctx: BlackboardContext, userId: string): Promise<MembershipCourse[]> {
-  const data = await getJson(ctx, `/learn/api/public/v1/users/${encodeURIComponent(userId)}/courses?expand=course,course.term&limit=100`);
-  return resultsArray(data).flatMap(item => {
+  const memberships = await fetchPagedResults(ctx, `/learn/api/public/v1/users/${encodeURIComponent(userId)}/courses?expand=course,course.term&limit=200`);
+  return memberships.flatMap(item => {
     const course = asRecord(item.course) || item;
     const id = stringValue(course.id) || stringValue(item.courseId);
     if (!id) return [];
@@ -303,7 +350,7 @@ export async function fetchDashboardFromSession(session: BlackboardSession): Pro
     fetchCurrentUser(ctx),
     fetchMemberships(ctx, session.userId),
   ]);
-  const materias = await Promise.all(courses.map(course => fetchMateria(ctx, course, session.userId)));
+  const materias = await mapLimit(courses, 4, course => fetchMateria(ctx, course, session.userId));
   const actividades = materias.flatMap(materia => materia.actividades);
   const urgentes = actividades.filter(activity => activity.status === 'OVERDUE').slice(0, 12);
   const pendientes = actividades.filter(activity => activity.score === null && activity.status !== 'OVERDUE').slice(0, 12);
@@ -348,9 +395,9 @@ async function fetchMateria(ctx: BlackboardContext, course: MembershipCourse, us
 }
 
 async function fetchActivities(ctx: BlackboardContext, course: MembershipCourse, userId: string): Promise<Actividad[]> {
-  const columns = resultsArray(await getJson(ctx, `/learn/api/public/v2/courses/${encodeURIComponent(course.courseId)}/gradebook/columns?limit=100`));
+  const columns = await fetchPagedResults(ctx, `/learn/api/public/v2/courses/${encodeURIComponent(course.courseId)}/gradebook/columns?limit=200`);
   const visibleColumns = columns.filter(column => stringValue(asRecord(column.availability)?.available) !== 'No');
-  const activities = await Promise.all(visibleColumns.map(column => fetchColumnActivity(ctx, course, userId, column).catch(() => null)));
+  const activities = await mapLimit(visibleColumns, 6, column => fetchColumnActivity(ctx, course, userId, column).catch(() => null));
   return activities.flatMap(activity => activity ? [activity] : []);
 }
 
@@ -367,7 +414,7 @@ async function fetchColumnGrade(ctx: BlackboardContext, courseId: string, column
   const singleRecord = asRecord(singleUser);
   if (singleRecord) return singleRecord;
 
-  const grades = resultsArray(await getJson(ctx, `${basePath}?limit=200`));
+  const grades = await fetchPagedResults(ctx, `${basePath}?limit=200`, 10);
   return grades.find(candidate => stringValue(candidate.userId) === userId) || null;
 }
 

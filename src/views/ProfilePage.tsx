@@ -4,6 +4,7 @@ import { api } from '../lib/api';
 import type { Dashboard, User } from '../types';
 import { AvatarPixel } from '../components/AvatarPixel';
 import { Card } from '../components/Card';
+import { getDisplayName, getDisplaySubtitle, getFirstName } from '../lib/userDisplay';
 
 function StatTile({ value, label, onClick, color = 'bg-surface' }: { value: string | number; label: string; onClick: () => void; color?: string }) {
   return (
@@ -41,6 +42,9 @@ export function ProfilePage({ user, onLogout }: { user: User; onLogout: () => vo
   }
 
   const k = d.kpis;
+  const displayName = getDisplayName(user);
+  const firstName = getFirstName(user);
+  const subtitle = getDisplaySubtitle(user);
   const termMap = new Map<string, typeof d.materias>();
   for (const m of d.materias) {
     const t = m.term?.name || '—';
@@ -52,9 +56,9 @@ export function ProfilePage({ user, onLogout }: { user: User; onLogout: () => vo
     <div className="grid grid-cols-1 gap-6">
       <section className="border-2 border-ink bg-surface p-5 shadow-brutal sm:p-6">
         <div className="text-[10px] font-display uppercase tracking-widest text-muted">Profile</div>
-        <h1 className="mt-2 break-words font-display text-4xl leading-none sm:text-5xl">BB Wrapped</h1>
+        <h1 className="mt-2 break-words font-display text-4xl leading-none sm:text-5xl">Hi, {firstName}</h1>
         <p className="mt-3 max-w-2xl text-sm text-muted">
-          {user.name || user.userName} · Blackboard account, course history, and high-level academic metrics.
+          Blackboard account, course history, and high-level academic metrics.
         </p>
       </section>
 
@@ -62,15 +66,15 @@ export function ProfilePage({ user, onLogout }: { user: User; onLogout: () => vo
       {/* Profile card */}
       <div className="p-6 bg-primary text-white border-2 border-ink shadow-brutal text-center">
         <div className="flex justify-center mb-4">
-          <AvatarPixel seed={user.name} name={user.name} size={120} />
+          <AvatarPixel seed={displayName} name={displayName} size={120} />
         </div>
-        <div className="font-display text-xl leading-tight">{user.name || user.userName}</div>
-        <div className="text-sm opacity-90 font-mono mt-1">{user.studentId || user.id}</div>
+        <div className="font-display text-xl leading-tight">{displayName}</div>
+        {subtitle ? <div className="text-sm opacity-90 font-mono mt-1">{subtitle}</div> : null}
 
         <div className="grid grid-cols-2 gap-2 mt-6">
           <StatTile value={`${(k.promedioGeneral || 0).toFixed(1)}%`} label="Average" onClick={() => navigate('/dashboard')} color="bg-ink-soft text-white" />
           <StatTile value={k.materiasActivas} label="Courses" onClick={() => navigate('/courses')} color="bg-ink-soft text-white" />
-          <StatTile value={k.actividadesCalificadas || 0} label="Graded" onClick={() => navigate('/dashboard')} color="bg-ink-soft text-white" />
+          <StatTile value={k.actividadesCalificadas || 0} label="Submitted" onClick={() => navigate('/dashboard')} color="bg-ink-soft text-white" />
           <StatTile value={k.urgentes} label="Urgent" onClick={() => navigate('/dashboard')} color="bg-ink-soft text-white" />
         </div>
 

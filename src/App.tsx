@@ -12,9 +12,10 @@ import { CourseDetailPage } from './views/CourseDetailPage';
 import { SearchPage } from './views/SearchPage';
 import { CalendarPage } from './views/CalendarPage';
 import { ProfilePage } from './views/ProfilePage';
-import { api, getSession, getDemoMode, type Session } from './lib/api';
+import { api, getCachedUser, getDemoMode, getSession, setCachedUser, type Session } from './lib/api';
 import type { User } from './types';
 import { ShellSkeleton, DashboardSkeleton } from './components/Skeleton';
+import { getDisplayName, getDisplaySubtitle } from './lib/userDisplay';
 
 function useRouteKey(): RouteKey {
   const { pathname } = useLocation();
@@ -28,7 +29,7 @@ function useRouteKey(): RouteKey {
 
 function AppShell() {
   const [session, setSess] = useState<Session | null>(getSession());
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(getCachedUser());
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -56,11 +57,13 @@ function AppShell() {
         const r = await api.dashboard();
         if (!active) return;
         setUser(r.user);
+        setCachedUser(r.user);
       } catch (e) {
         if (!active) return;
         console.error('Session invalid', e);
         api.logout();
         setSess(null);
+        setUser(null);
         navigate('/login');
       } finally {
         if (active) setLoading(false);
@@ -81,6 +84,7 @@ function AppShell() {
     await api.logout();
     setSess(null);
     setUser(null);
+    setCachedUser(null);
     pushToast('Signed out', 'info');
     navigate('/login');
   }
@@ -111,7 +115,7 @@ function AppShell() {
       <TopBar
         currentRoute={routeKey}
         onNavigate={onNavigate}
-        user={user ? { name: user.name || user.userName || user.id, email: user.email } : null}
+        user={user ? { name: getDisplayName(user), subtitle: getDisplaySubtitle(user) } : null}
         onLogout={onLogout}
       />
       <main className="max-w-7xl mx-auto w-full overflow-hidden px-4 py-6 sm:px-6 sm:py-8">

@@ -4,6 +4,7 @@ import { getApiBaseUrl, shouldUseDemoMode } from './apiConfig';
 // ─── Demo mode detection ──────────────────────────────────────
 const SESSION_KEY = 'bb-dash:session';
 const LAST_LOGIN_KEY = 'bb-dash:lastlogin';
+const USER_KEY = 'bb-dash:user';
 
 function isDemo(): boolean {
   if (typeof window === 'undefined') return false;
@@ -56,6 +57,20 @@ export function getLastLogin(): { school: string; username: string } {
 export function setLastLogin(school: string, username: string) {
   if (typeof window === 'undefined') return;
   window.localStorage.setItem(LAST_LOGIN_KEY, JSON.stringify({ school, username }));
+}
+
+export function getCachedUser(): User | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(USER_KEY);
+    return raw ? (JSON.parse(raw) as User) : null;
+  } catch { return null; }
+}
+
+export function setCachedUser(user: User | null) {
+  if (typeof window === 'undefined') return;
+  if (user) window.localStorage.setItem(USER_KEY, JSON.stringify(user));
+  else window.localStorage.removeItem(USER_KEY);
 }
 
 // ─── API layer ────────────────────────────────────────────────
@@ -121,6 +136,7 @@ export const api = {
       // Local logout should clear client state even if the backend session is already gone.
     }
     setSession(null);
+    setCachedUser(null);
   },
   me: () => request<{ ok: boolean; user: User }>('/api/me'),
   dashboard: () => request<Dashboard>('/api/dashboard'),

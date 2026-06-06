@@ -5,7 +5,7 @@ export type RouteKey = 'dashboard' | 'courses' | 'search' | 'calendar' | 'profil
 
 export interface TopBarUser {
   name: string
-  email?: string
+  subtitle?: string
   avatar?: string
 }
 
@@ -39,7 +39,10 @@ function UserChip({ user }: { user: TopBarUser }): ReactNode {
       <div className="w-7 h-7 bg-primary text-white flex items-center justify-center text-xs font-bold border-2 border-ink">
         {initials(user.name) || '?'}
       </div>
-      <span className="text-sm font-semibold hidden sm:inline">{user.name}</span>
+      <span className="hidden min-w-0 sm:block">
+        <span className="block truncate text-sm font-semibold leading-tight">{user.name}</span>
+        {user.subtitle ? <span className="block truncate font-mono text-[10px] leading-tight text-white/65">{user.subtitle}</span> : null}
+      </span>
     </div>
   )
 }
@@ -61,8 +64,8 @@ export function TopBar({ currentRoute, onNavigate, user, onLogout }: TopBarProps
         </div>
         <div className="leading-none">
           <div className="font-display text-lg tracking-tight">
-            <span className="text-primary">easy</span>
-            <span className="text-white">-bb</span>
+            <span className="text-primary">BB</span>
+            <span className="text-white"> Wrapped</span>
           </div>
           <ApoappsCredit compact dark />
         </div>

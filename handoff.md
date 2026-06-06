@@ -1,64 +1,46 @@
 ## Goal
 
-Keep easy-bb production-ready as a Next.js app where Next API routes are the backend, demo/mock data cannot leak in production, and the UI presents a polished English Blackboard metrics dashboard built by apoapps.
+Keep easy-bb production-ready as a Next.js app where Next API routes are the backend, mock/demo data cannot leak in production, and the UI presents a clean English Blackboard metrics experience under the `BB Wrapped` appbar brand.
 
 ## Current State
 
-Next.js serves both the UI and `/api/*`. `POST /api/login` posts to the Blackboard web login for the selected school, stores Blackboard cookies server-side inside a sealed `httpOnly` cookie, and returns a compatibility `sessionId` to the existing React client.
+Next.js serves both the React UI and `/api/*`. The app uses the real Next API backend in production and demo mode only on local/dev URLs. Vercel is expected to deploy from GitHub push; do not deploy through any forbidden Vercel team or project.
 
-Authenticated routes read the sealed cookie:
+The appbar now owns the `BB Wrapped` brand persistently. Dashboard and profile use a concise `Hi, {firstName}` story card, while the appbar user chip persists cached user state and shows the real display name with student number as a secondary label.
 
-- `GET /api/me` calls `/learn/api/public/v1/users/me`.
-- `GET /api/memberships` calls Blackboard course memberships for the current user.
-- `GET /api/dashboard` reads current user, memberships, gradebook columns, and per-column grades to build the dashboard shape.
-- `POST /api/logout` clears the sealed session cookie.
-
-The visible app is now English-only, uses `BB Wrapped` as the large dashboard/profile story title, includes "Built by apoapps" links to `https://apoapps.com`, and shows a GitHub icon link to `https://github.com/apoapps/easy-bb` in the top-right header. Vercel is expected to deploy from GitHub push now that the user configured the correct Vercel account externally.
+The Blackboard connector now follows paginated Blackboard responses for memberships, gradebook columns, and grade lists. It limits concurrent course/column fetches and keeps a gradebook column visible even if the user-specific grade lookup fails.
 
 ## Files In Flight
 
-- `app/api/*`
-- `app/client-app.tsx`
-- `app/layout.tsx`
-- `public/favicon.svg`
+- `app/api/_blackboard.ts`
+- `app/api/_blackboard.test.ts`
 - `src/App.tsx`
-- `src/components/ApoLogo.tsx`
-- `src/components/Skeleton.tsx`
-- `src/components/UiIcon.tsx`
-- `src/components/Dice3D.tsx`
 - `src/components/TopBar.tsx`
-- `src/components/CourseCard.tsx`
-- `src/components/BarRow.tsx`
-- `src/views/*`
 - `src/lib/api.ts`
-- `src/lib/demoData.ts`
-- `src/index.css`
-- `tailwind.config.js`
-- `README.md`
+- `src/lib/userDisplay.ts`
+- `src/views/DashboardPage.tsx`
+- `src/views/ProfilePage.tsx`
 - `handoff.md`
 
 ## Changed
 
-- Rebranded visible UI to easy-bb with a sketch-style apoapps logo, new favicon, `Built by apoapps` link, and GitHub icon link in the header.
-- Rebuilt the 3D cube faces with crisp SVG icons instead of emoji so the icons render sharply and are not clipped or covered.
-- Removed the logo stamp that overlapped the cube face.
-- Neutralized the palette while keeping a restrained purple accent.
-- Converted login, dashboard, courses, search, calendar, course detail, profile, modal labels, demo copy, README, and API error messages to English.
-- Removed user-specific school examples and replaced demo data with generic Course A/B/C and Assignment labels.
-- Swapped loading text/spinners for reusable skeleton components.
-- Added a richer dashboard overview for all courses with graded percentage, attention count, stable count, course ranking, recent activity, featured course, urgent, and pending sections.
-- Changed `/courses` from horizontal scroll cards to a responsive grid.
-- Removed fade timing from course cards and dashboard rows so cards/rows render at full opacity immediately in screenshots and production.
-- Changed dashboard/profile large titles to `BB Wrapped`.
-- Sorted courses so `0.0%` averages and missing averages appear last in dashboard rankings, the courses grid, and profile term lists.
-- Updated grade collection so a failed per-column grade lookup no longer drops the whole gradebook column; the activity still appears with unknown grade data.
+- Added paginated Blackboard reads for course memberships, gradebook columns, and grade list fallbacks.
+- Added bounded concurrency for dashboard course and column collection.
+- Exported and tested `normalizeUser` so student numbers like `m041975` are stored as `studentId`, not shown as the primary display name.
+- Added cached user persistence in localStorage so the appbar user state survives navigation/refresh while the session is valid.
+- Added `src/lib/userDisplay.ts` to centralize display name, first name, and subtitle selection.
+- Changed the appbar brand to `BB Wrapped`; dashboard/profile cards now say `Hi, {firstName}` instead of repeating `BB Wrapped`.
+- Simplified dashboard storytelling: average, submitted historical items, watchlist items, compact status, course overview, and recent activity.
+- Removed the featured course section.
+- Fixed watchlist/needs-attention calculations so they use urgent/needs-grading activity data instead of showing misleading zeroes.
+- Updated Profile to use the real display name and student number subtitle, with `Submitted` instead of `Graded`.
+- Added tests for student-number display-name handling and real profile name preservation.
 
 ## Failed Attempts
 
-- `npx -p playwright node /tmp/easy-bb-verify.cjs` and `npx -p playwright -c 'node ...'` did not expose `require('playwright')` to the script. Resolved by using the cached npx package path through `NODE_PATH`.
-- Playwright initially lacked the Chromium binary. Resolved with `npx -y playwright install chromium`.
-- `next start` correctly disabled demo mode in production, so visual demo QA used `next dev` while production correctness stayed covered by `npm run build`.
+- `npm run build` initially failed because TypeScript did not narrow `normalizeUser().name` to `string`. Fixed by assigning an explicit `let name = 'Student'` fallback before returning the user.
+- The Playwright dev screenshot shows a circular Next dev indicator at the lower-left; this is local dev chrome and is not part of the production app.
 
 ## Next Step
 
-Commit and push the current UI/data-collection changes to `origin/main`. After Vercel finishes, smoke-test `https://easy-bb.vercel.app/` for the English login screen, favicon, GitHub link, apoapps link, `BB Wrapped` dashboard/profile title, sorted zero-average courses, and real Blackboard login behavior.
+After this commit is pushed to `origin/main`, wait for the GitHub-triggered Vercel deployment and smoke-test `https://easy-bb.vercel.app/` with a real Blackboard login. Confirm the appbar says `BB Wrapped`, the user chip shows name plus student number, dashboard/profile cards say `Hi, {name}`, zero-average courses stay at the bottom, and no horizontal overflow appears on mobile or desktop.

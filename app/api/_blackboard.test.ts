@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CookieJar, normalizeSchool, parseHiddenInputs } from './_blackboard';
+import { CookieJar, normalizeSchool, normalizeUser, parseHiddenInputs } from './_blackboard';
 
 describe('Blackboard connector helpers', () => {
   it('normalizes Blackboard school subdomains', () => {
@@ -28,5 +28,30 @@ describe('Blackboard connector helpers', () => {
     jar.add('s_session_id=def; Path=/; Secure');
 
     expect(jar.header()).toBe('JSESSIONID=abc; s_session_id=def');
+  });
+
+  it('does not treat a student number as the display name', () => {
+    expect(normalizeUser({
+      id: '_123',
+      name: 'm041975',
+      userName: 'm041975',
+    })).toMatchObject({
+      id: '_123',
+      name: 'Student',
+      studentId: 'm041975',
+      userName: 'm041975',
+    });
+  });
+
+  it('keeps real Blackboard profile names when available', () => {
+    expect(normalizeUser({
+      id: '_123',
+      givenName: 'Alejandro',
+      familyName: 'Apodaca',
+      userName: 'm041975',
+    })).toMatchObject({
+      name: 'Alejandro Apodaca',
+      studentId: 'm041975',
+    });
   });
 });
