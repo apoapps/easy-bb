@@ -49,7 +49,16 @@ export function ProfilePage({ user, onLogout }: { user: User; onLogout: () => vo
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6">
+    <div className="grid grid-cols-1 gap-6">
+      <section className="border-2 border-ink bg-surface p-5 shadow-brutal sm:p-6">
+        <div className="text-[10px] font-display uppercase tracking-widest text-muted">Profile</div>
+        <h1 className="mt-2 break-words font-display text-4xl leading-none sm:text-5xl">BB Wrapped</h1>
+        <p className="mt-3 max-w-2xl text-sm text-muted">
+          {user.name || user.userName} · Blackboard account, course history, and high-level academic metrics.
+        </p>
+      </section>
+
+      <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6">
       {/* Profile card */}
       <div className="p-6 bg-primary text-white border-2 border-ink shadow-brutal text-center">
         <div className="flex justify-center mb-4">
@@ -85,16 +94,21 @@ export function ProfilePage({ user, onLogout }: { user: User; onLogout: () => vo
                 <span className="text-xs text-muted font-sans font-normal">{ms.length} courses</span>
               </h4>
               <ul className="divide-y divide-ink/20">
-                {ms.map(m => (
+                {[...ms].sort((a, b) => {
+                  const aRank = a.promedio && a.promedio > 0 ? a.promedio : -1;
+                  const bRank = b.promedio && b.promedio > 0 ? b.promedio : -1;
+                  return bRank - aRank;
+                }).map(m => (
                   <li key={m.courseId} className="py-2 flex items-center justify-between">
                     <span className="font-semibold text-sm">{m.displayName}</span>
-                    <span className="font-mono font-bold">{(m.promedio || 0).toFixed(1)}%</span>
+                    <span className="font-mono font-bold">{m.promedio == null ? '—' : `${m.promedio.toFixed(1)}%`}</span>
                   </li>
                 ))}
               </ul>
             </Card>
           ))}
         </div>
+      </div>
       </div>
     </div>
   );

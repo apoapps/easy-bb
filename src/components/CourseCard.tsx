@@ -26,7 +26,7 @@ export function CourseCard({ materia }: CourseCardProps) {
   const navigate = useNavigate();
   const c = colorForCourse(materia.displayName);
   const initials = materia.displayName.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
-  const prom = materia.promedio ?? 0;
+  const prom = materia.promedio;
 
   return (
     <button
@@ -67,7 +67,7 @@ export function CourseCard({ materia }: CourseCardProps) {
       <div>
         <div className="text-[10px] font-display uppercase tracking-widest opacity-85">Average</div>
         <div className="font-display text-6xl leading-none">
-          {prom.toFixed(1)}<span className="text-2xl">%</span>
+          {prom == null ? '—' : prom.toFixed(1)}{prom == null ? null : <span className="text-2xl">%</span>}
         </div>
         <div className="text-xs font-mono mt-1 opacity-90 truncate">
           {materia.totalEarned} / {materia.totalPossible} pts

@@ -26,6 +26,9 @@ export function CoursesPage() {
     return <CourseGridSkeleton />;
   }
 
+  const averageRank = (value: number | null) => value && value > 0 ? value : -1;
+  const sortedCourses = [...d.materias].sort((a, b) => averageRank(b.promedio) - averageRank(a.promedio));
+
   return (
     <div className="flex flex-col gap-6">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end">
@@ -43,7 +46,7 @@ export function CoursesPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {d.materias.map((m, i) => (
+        {sortedCourses.map((m, i) => (
           <CourseCard key={m.courseId} materia={m} index={i} />
         ))}
       </div>

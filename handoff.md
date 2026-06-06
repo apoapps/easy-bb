@@ -13,7 +13,7 @@ Authenticated routes read the sealed cookie:
 - `GET /api/dashboard` reads current user, memberships, gradebook columns, and per-column grades to build the dashboard shape.
 - `POST /api/logout` clears the sealed session cookie.
 
-The visible app is now English-only, uses the easy-bb brand instead of BB DASH, includes "Built by apoapps" links to `https://apoapps.com`, and shows a GitHub icon link to `https://github.com/apoapps/easy-bb` in the top-right header. Vercel is expected to deploy from GitHub push now that the user configured the correct Vercel account externally.
+The visible app is now English-only, uses `BB Wrapped` as the large dashboard/profile story title, includes "Built by apoapps" links to `https://apoapps.com`, and shows a GitHub icon link to `https://github.com/apoapps/easy-bb` in the top-right header. Vercel is expected to deploy from GitHub push now that the user configured the correct Vercel account externally.
 
 ## Files In Flight
 
@@ -49,6 +49,9 @@ The visible app is now English-only, uses the easy-bb brand instead of BB DASH, 
 - Added a richer dashboard overview for all courses with graded percentage, attention count, stable count, course ranking, recent activity, featured course, urgent, and pending sections.
 - Changed `/courses` from horizontal scroll cards to a responsive grid.
 - Removed fade timing from course cards and dashboard rows so cards/rows render at full opacity immediately in screenshots and production.
+- Changed dashboard/profile large titles to `BB Wrapped`.
+- Sorted courses so `0.0%` averages and missing averages appear last in dashboard rankings, the courses grid, and profile term lists.
+- Updated grade collection so a failed per-column grade lookup no longer drops the whole gradebook column; the activity still appears with unknown grade data.
 
 ## Failed Attempts
 
@@ -58,4 +61,4 @@ The visible app is now English-only, uses the easy-bb brand instead of BB DASH, 
 
 ## Next Step
 
-Push the current UI changes to `origin/main` so the correctly configured Vercel project can build from GitHub. After Vercel finishes, smoke-test `https://easy-bb.vercel.app/` for the English login screen, favicon, GitHub link, apoapps link, and real Blackboard login behavior.
+Commit and push the current UI/data-collection changes to `origin/main`. After Vercel finishes, smoke-test `https://easy-bb.vercel.app/` for the English login screen, favicon, GitHub link, apoapps link, `BB Wrapped` dashboard/profile title, sorted zero-average courses, and real Blackboard login behavior.

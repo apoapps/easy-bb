@@ -60,7 +60,8 @@ export function DashboardPage() {
   }
 
   const k = d.kpis;
-  const materiasOrdenadas = [...d.materias].sort((a, b) => (b.promedio ?? -1) - (a.promedio ?? -1));
+  const averageRank = (value: number | null) => value && value > 0 ? value : -1;
+  const materiasOrdenadas = [...d.materias].sort((a, b) => averageRank(b.promedio) - averageRank(a.promedio));
   const materiasConRiesgo = d.materias.filter(m => (m.promedio ?? 100) < 75 || (m.urgentes?.length || 0) > 0);
   const gradedPct = k.actividadesTotales > 0 ? Math.round((k.actividadesCalificadas / k.actividadesTotales) * 100) : 0;
   const allActivities = d.materias.flatMap(m => m.actividades.map(a => ({ ...a, courseName: m.displayName, courseId: m.courseId })));
@@ -71,9 +72,32 @@ export function DashboardPage() {
   const lastMateria = [...d.materias].sort((a, b) =>
     new Date(b.lastAccess || 0).getTime() - new Date(a.lastAccess || 0).getTime()
   )[0];
+  const firstName = d.user.givenName || d.user.name?.split(/\s+/)[0] || d.user.userName || 'Student';
+  const signal = k.urgentes > 0 ? 'Needs attention' : (k.promedioGeneral ?? 0) >= 80 ? 'On track' : 'Keep going';
+  const signalTone = k.urgentes > 0 ? 'bg-warn text-ink' : (k.promedioGeneral ?? 0) >= 80 ? 'bg-good text-white' : 'bg-info text-white';
 
   return (
     <div className="flex flex-col gap-6">
+      <section className="grid gap-4 border-2 border-ink bg-surface p-5 shadow-brutal sm:p-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+        <div className="min-w-0">
+          <div className="text-[10px] font-display uppercase tracking-widest text-muted">BB Wrapped</div>
+          <h1 className="mt-2 font-display text-4xl leading-none tracking-tight sm:text-5xl">BB Wrapped</h1>
+          <p className="mt-3 max-w-2xl text-sm text-muted">
+            {firstName}, here is a clean read on your courses, submitted work, urgent items, and grade momentum.
+          </p>
+        </div>
+        <div className={`border-2 border-ink px-4 py-3 shadow-brutal-sm ${signalTone}`}>
+          <div className="text-[10px] font-display uppercase tracking-widest">Status</div>
+          <div className="mt-1 font-display text-2xl leading-none">{signal}</div>
+        </div>
+      </section>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <StoryMetric label="Submitted work" value={k.actividadesCalificadas} detail="historically graded items" />
+        <StoryMetric label="Course load" value={k.materiasActivas} detail="Blackboard courses found" />
+        <StoryMetric label="Completion read" value={`${gradedPct}%`} detail="items with a grade" />
+      </div>
+
       {/* KPI row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <KpiCard label="Overall average" value={k.promedioGeneral || 0} suffix="%" gauge tone="primary" />
@@ -124,7 +148,7 @@ export function DashboardPage() {
                     <div className="h-full bg-primary" style={{ width: `${Math.max(0, Math.min(100, m.promedio ?? 0))}%` }} />
                   </div>
                 </div>
-                <div className="text-right font-mono font-bold">{(m.promedio ?? 0).toFixed(1)}%</div>
+                <div className="text-right font-mono font-bold">{m.promedio == null ? '—' : `${m.promedio.toFixed(1)}%`}</div>
               </button>
             ))}
           </div>
@@ -168,7 +192,7 @@ export function DashboardPage() {
               <div className="font-display text-xl sm:text-2xl leading-tight mt-1 break-words">{lastMateria.displayName}</div>
             </div>
             <div className="self-start sm:self-center shrink-0 font-mono text-3xl sm:text-4xl font-bold bg-white text-ink px-3 py-1 border-2 border-ink shadow-brutal-sm">
-              {(lastMateria.promedio || 0).toFixed(1)}%
+              {lastMateria.promedio == null ? '—' : `${lastMateria.promedio.toFixed(1)}%`}
             </div>
           </button>
         );
@@ -246,6 +270,16 @@ function OverviewTile({ label, value, hint, tone }: { label: string; value: stri
       <div className="font-display text-2xl leading-none">{value}</div>
       <div className="mt-1 text-[10px] font-display uppercase tracking-widest">{label}</div>
       <div className="mt-2 truncate text-xs font-mono opacity-80">{hint}</div>
+    </div>
+  );
+}
+
+function StoryMetric({ label, value, detail }: { label: string; value: string | number; detail: string }) {
+  return (
+    <div className="border-2 border-ink bg-surface-alt p-4 shadow-brutal-sm">
+      <div className="font-display text-3xl leading-none">{value}</div>
+      <div className="mt-2 text-[10px] font-display uppercase tracking-widest">{label}</div>
+      <div className="mt-1 truncate text-xs font-mono text-muted">{detail}</div>
     </div>
   );
 }

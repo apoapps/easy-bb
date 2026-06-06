@@ -357,7 +357,7 @@ async function fetchActivities(ctx: BlackboardContext, course: MembershipCourse,
 async function fetchColumnActivity(ctx: BlackboardContext, course: MembershipCourse, userId: string, column: JsonRecord): Promise<Actividad | null> {
   const columnId = stringValue(column.id);
   if (!columnId) return null;
-  const grade = await fetchColumnGrade(ctx, course.courseId, columnId, userId);
+  const grade = await fetchColumnGrade(ctx, course.courseId, columnId, userId).catch(() => null);
   return normalizeActivity(course, column, grade || null);
 }
 
